@@ -1,4 +1,4 @@
-const { askAI } = require("../lib/aiHelper");
+const { askAI, checkAILimit } = require("../lib/aiHelper");
 
 module.exports = {
     name: "ask",
@@ -21,6 +21,12 @@ module.exports = {
         }
 
         try {
+            // 🛡️ Rate Limit Check
+            const limit = checkAILimit(sender);
+            if (!limit.allowed) {
+                return await sock.sendMessage(jid, { text: limit.reason }, { quoted: msg });
+            }
+
             await sock.sendMessage(jid, { react: { text: "🤖", key: msg.key } });
             await sock.sendMessage(jid, { text: "🤖 Thinking... ⏳" });
 
