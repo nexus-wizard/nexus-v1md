@@ -9,6 +9,10 @@ const { handleMessages } = require("./lib/commandHandler");
 let isFirstConnect = true;
 let isReconnecting = false;
 
+async function connectionLogic() {
+    if (isReconnecting) return; // Prevent multiple instances
+    isReconnecting = true;
+
     const fs = require("fs");
     const path = require("path");
 
