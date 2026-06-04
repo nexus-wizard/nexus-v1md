@@ -13,10 +13,10 @@ module.exports = {
             let mentions = [];
             let response = `📢 *TAG ALL*\n\n*Message:* ${message}\n\n`;
             
-            for (let i of participants) {
-                response += ` @${i.id.split("@")[0]}`;
+            participants.forEach((i, idx) => {
+                response += `${idx + 1}. @${i.id.split("@")[0]}\n`;
                 mentions.push(i.id);
-            }
+            });
 
             await sock.sendMessage(jid, { text: response, mentions: mentions }, { quoted: msg });
         } catch (err) {
