@@ -16,18 +16,15 @@ module.exports = {
 
         await sock.sendMessage(jid, { 
             text,
-            /* 
             contextInfo: {
                 externalAdReply: {
                     title: "WHITE WIZARD",
                     body: "I Like Coding! 💻🚀",
                     thumbnail: fs.readFileSync(path.join(__dirname, "../assets/Nexuspic.png")),
                     sourceUrl: "https://jonathanmwanza.vercel.app/",
-                    mediaType: 1,
-                    renderLargerThumbnail: true
+                    mediaType: 1
                 }
             }
-            */
         }, { quoted: msg });
     }
 };

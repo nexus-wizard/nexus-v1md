@@ -22,8 +22,7 @@ module.exports = {
                     body: "Official GitHub Repository",
                     thumbnail: fs.readFileSync(path.join(__dirname, "../assets/Nexuspic.png")),
                     sourceUrl: "https://github.com/devwhitewizard/nexus-v1md",
-                    mediaType: 1,
-                    renderLargerThumbnail: true
+                    mediaType: 1
                 }
             }
         }, { quoted: msg });
