@@ -1,5 +1,6 @@
 const path = require("path");
 const fs = require("fs");
+const { User } = require("../lib/userModel");
 
 module.exports = {
     name: "menu",
@@ -73,10 +74,12 @@ module.exports = {
             menuBody += `┃ 🖼️ *${greeting}*\n`;
             menuBody += `╰━━━━━━━◇\n\n`;
             
+            const userCount = await User.count();
+            
             menuBody += `┃ 🤠 *USER:* ${pushName}\n`;
             menuBody += `┃ 📅 *DATE:* ${date}\n`;
             menuBody += `┃ ⌚ *TIME:* ${time}\n`;
-            menuBody += `┃ ⭐ *USERS:* (loading...)\n`;
+            menuBody += `┃ ⭐ *USERS:* ${userCount}\n`;
             menuBody += `╰━━━━━━━━━◇\n\n`;
             
             menuBody += `*AVAILABLE CATEGORIES:*\n`;
