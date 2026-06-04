@@ -34,9 +34,14 @@ module.exports = {
                 try {
                     const code = await pairSock.requestPairingCode(targetNumber);
                     
-                    await sock.sendMessage(jid, { 
-                        text: `🔗 *NEXUS-1MD PAIRING*\n━━━━━━━━━━━━━━━━━━━\n*Copy the code below* and enter it in linked devices on your phone.`
-                    }, { quoted: msg });
+                    const pairingMsg = `💎 *NEXUS-1MD PAIRING* 💎\n\n` +
+                                     `━━━━━━━━━━━━━━━━━━━\n` +
+                                     `1. Open WhatsApp Settings\n` +
+                                     `2. Linked Devices > Link with Phone\n` +
+                                     `3. Enter the code below 👇\n` +
+                                     `━━━━━━━━━━━━━━━━━━━`;
+
+                    await sock.sendMessage(jid, { text: pairingMsg }, { quoted: msg });
 
                     // Clean, dedicated message for 1-tap copy
                     await sock.sendMessage(jid, { text: code });
