@@ -39,12 +39,33 @@ async function connectionLogic() {
 
     const { state, saveCreds } = await useMultiFileAuthState(authFolder);
 
+    const usePairingCode = !!process.env.PAIRING_NUMBER && !state.creds.registered;
+    
     const sock = makeWASocket({
-        printQRInTerminal: true,
+        printQRInTerminal: !usePairingCode,
         auth: state,
-        markOnline: true, // Try to keep connection alive
+        markOnline: true, 
         browser: ["Nexus-1MD", "Chrome", "1.0.0"],
     });
+
+    if (usePairingCode && !state.creds.registered) {
+        setTimeout(async () => {
+            try {
+                let pNumber = process.env.PAIRING_NUMBER.replace(/[^0-9]/g, "");
+                const code = await sock.requestPairingCode(pNumber);
+                console.clear();
+                console.log("\n========================================");
+                console.log("🔗 YOUR NEXUS-1MD PAIRING CODE:");
+                console.log(`👉 ${code} 👈`);
+                console.log("========================================\n");
+                console.log("1. Open WhatsApp on your phone.");
+                console.log("2. Go to Linked Devices > Link with Phone Number.");
+                console.log(`3. Enter the code shown above.`);
+            } catch (err) {
+                console.error("❌ Failed to generate pairing code:", err);
+            }
+        }, 3000);
+    }
 
     sock.ev.on("creds.update", saveCreds);
 
