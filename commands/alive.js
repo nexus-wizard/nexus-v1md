@@ -27,7 +27,6 @@ module.exports = {
                      `📟 *RAM:* \`${procMem} MB\`\n` +
                      `📡 *Latency:* \`${Math.floor(Math.random() * 50) + 10}ms\`\n\n` +
                      `📂 *Repo:* github.com/devwhitewizard/nexus-v1md\n` +
-                     `👨‍💻 *Dev:* jonathanmwanza.vercel.app\n\n` +
                      `_Type .menu to see what I can do!_`;
 
         await sock.sendMessage(jid, { 
