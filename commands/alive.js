@@ -26,6 +26,8 @@ module.exports = {
                      `🕒 *Uptime:* \`${uptimeStr}\`\n` +
                      `📟 *RAM:* \`${procMem} MB\`\n` +
                      `📡 *Latency:* \`${Math.floor(Math.random() * 50) + 10}ms\`\n\n` +
+                     `📂 *Repo:* github.com/devwhitewizard/nexus-v1md\n` +
+                     `👨‍💻 *Dev:* jonathanmwanza.vercel.app\n\n` +
                      `_Type .menu to see what I can do!_`;
 
         await sock.sendMessage(jid, { 
@@ -35,7 +37,7 @@ module.exports = {
                     title: "NEXUS-1MD ACTIVE",
                     body: "Premium WhatsApp Experience",
                     thumbnailUrl: "https://files.catbox.moe/p9pntu.jpg",
-                    sourceUrl: "https://chat.whatsapp.com/invite/Nexus",
+                    sourceUrl: "https://github.com/devwhitewizard/nexus-v1md",
                     mediaType: 1,
                     renderLargerThumbnail: true
                 }

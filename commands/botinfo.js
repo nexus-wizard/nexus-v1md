@@ -11,7 +11,9 @@ module.exports = {
         
         const info = `🤖 *NEXUS-1MD SYSTEM INFO*\n\n` +
                      `✨ *Version:* \`2.5.0 (Moderation)\`\n` +
-                     `👨‍💻 *Creator:* \`White Wizard\`\n` +
+                     `👨‍💻 *Developer:* \`White Wizard\`\n` +
+                     `📂 *GitHub:* https://github.com/devwhitewizard/nexus-v1md\n` +
+                     `🌐 *Portfolio:* https://jonathanmwanza.vercel.app/\n\n` +
                      `💻 *Platform:* \`${os.platform()}\`\n` +
                      `📟 *Memory:* \`${memory}MB / ${totalMem}GB\`\n` +
                      `🔋 *Node:* \`${process.version}\`\n\n` +
