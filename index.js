@@ -1,4 +1,7 @@
 require("dotenv").config();
+const express = require("express");
+const app = express();
+const PORT = process.env.PORT || 3000;
 const { DisconnectReason, useMultiFileAuthState } = require("@whiskeysockets/baileys");
 const makeWASocket = require("@whiskeysockets/baileys").default;
 const qrcode = require("qrcode-terminal");
@@ -124,6 +127,10 @@ async function connectionLogic() {
                     setTimeout(() => {
                         isReconnecting = false;
                         connectionLogic();
+
+// 🌐 Health Check Server (Required for Render/PaaS hosting)
+app.get("/", (req, res) => res.send("🤖 Nexus-1MD is Online and Healthy!"));
+app.listen(PORT, () => console.log(`🌍 Heartbeat server listening on port ${PORT}`));
                     }, delay);
                 }
             } else {
