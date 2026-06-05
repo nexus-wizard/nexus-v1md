@@ -36,14 +36,26 @@ async function connectionLogic() {
         try {
             const rawId = process.env.SESSION_ID.trim();
             const sessionId = rawId.includes("~") ? rawId.split("~")[1] : rawId;
-            const credsJson = Buffer.from(sessionId, "base64").toString("utf-8");
+            const buffer = Buffer.from(sessionId, "base64");
+            const credsJson = buffer.toString("utf-8");
             
-            if (!fs.existsSync(path.join(__dirname, authFolder))) {
-                fs.mkdirSync(path.join(__dirname, authFolder), { recursive: true });
+            console.log(`📦 Decoded SESSION_ID (first 20 chars): ${credsJson.substring(0, 20)}`);
+
+            if (!credsJson.trim().startsWith("{")) {
+                console.warn("⚠️  Warning: Decoded SESSION_ID does not look like valid JSON. Searching for JSON start...");
+                const jsonStart = credsJson.indexOf("{");
+                if (jsonStart !== -1) {
+                    const cleanJson = credsJson.substring(jsonStart);
+                    console.log("✅ Found JSON start. Attempting to use cleaned data.");
+                    fs.writeFileSync(path.join(__dirname, authFolder, "creds.json"), cleanJson);
+                } else {
+                    console.error("❌ Error: No JSON metadata found in the Session ID. Saving raw data as fallback.");
+                    fs.writeFileSync(path.join(__dirname, authFolder, "creds.json"), credsJson);
+                }
+            } else {
+                fs.writeFileSync(path.join(__dirname, authFolder, "creds.json"), credsJson);
             }
-            
-            fs.writeFileSync(path.join(__dirname, authFolder, "creds.json"), credsJson);
-            console.log("✅ Session restored successfully from SESSION_ID!");
+            console.log("✅ Session file created from SESSION_ID.");
         } catch (e) {
             console.error("❌ Failed to restore session from ID:", e.message);
         }
