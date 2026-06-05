@@ -6,7 +6,8 @@ jspm_packages/
 
 # Authentication & Session Data (CRITICAL: Do NOT push these!)
 auth_info_baileys/
-session/
+session/*
+!session/.gitkeep
 creds.json
 creds/
 auth/

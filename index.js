@@ -39,12 +39,15 @@ async function connectionLogic() {
 
     const { state, saveCreds } = await useMultiFileAuthState(authFolder);
     const usePairingCode = !!process.env.PAIRING_NUMBER && !state.creds.registered;
+    if (!process.env.PAIRING_NUMBER && !state.creds.registered) {
+        console.log("ℹ️  No PAIRING_NUMBER found in .env. Defaulting to QR code login.");
+    }
     
     const sock = makeWASocket({
         printQRInTerminal: !usePairingCode,
         auth: state,
         markOnline: true, 
-        browser: ["Nexus-1MD", "Chrome", "1.0.0"],
+        browser: ["Ubuntu", "Chrome", "20.0.04"],
     });
 
     if (usePairingCode && !state.creds.registered) {

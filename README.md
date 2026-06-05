@@ -95,6 +95,27 @@ pm2 stop nexus-bot  # Stop the bot
 
 ---
 
+## ☁️ Cloud Deployment (Render / Heroku)
+
+For hosting on platforms like **Render**, **Heroku**, or **Railway**, you must use the **Session ID** method to keep the bot connected 24/7.
+
+1. **Get your Session ID**: 
+   - Run the bot locally once OR use the `.pair` command to get your ID.
+   - It will look like: `Nexus~your_code_here`.
+2. **Set Environment Variables**:
+   - Go to your panel's **Environment Variables** / **Config Vars** section.
+   - Add a new key: `SESSION_ID`.
+   - Paste your `Nexus~...` ID as the value.
+3. **Restart the Bot**: The bot will now log in automatically using that ID!
+
+### Method 2: Manual File Method (ZIP Upload)
+If you are uploading the project ZIP to a panel (like a File Manager):
+1. Create a folder named `session` in the root directory (if it doesn't already exist).
+2. Paste your `creds.json` file inside that `session` folder.
+3. Start the bot. It will detect the file and log you in immediately!
+
+---
+
 ## 📋 Command Prefixes
 
 The bot responds to `!`, `.`, and `/` prefixes.

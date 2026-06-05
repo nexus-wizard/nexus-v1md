@@ -26,7 +26,7 @@ module.exports = {
                 auth: state,
                 printQRInTerminal: false,
                 logger: pino({ level: "silent" }),
-                browser: ["Nexus-1MD", "Chrome", "1.0.0"]
+                browser: ["Ubuntu", "Chrome", "20.0.04"]
             });
 
             // 1. Request the code
