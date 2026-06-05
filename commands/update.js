@@ -15,6 +15,11 @@ module.exports = {
 
         exec("git fetch origin main", async (err, stdout, stderr) => {
             if (err) {
+                if (err.message.includes("not a git repository")) {
+                    return await sock.sendMessage(jid, { 
+                        text: "❌ *Manual ZIP detected.*\n\nBecause you uploaded a ZIP file instead of using `git clone`, the auto-update feature is disabled.\n\n💡 *Recommendation:* Host your bot by linking your GitHub repo to your panel (Render/Heroku/Railway) for automatic updates!" 
+                    });
+                }
                 return await sock.sendMessage(jid, { text: `❌ *Error fetching updates:* ${err.message}` });
             }
 

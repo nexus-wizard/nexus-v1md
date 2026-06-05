@@ -19,6 +19,9 @@ module.exports = {
         
         await sock.sendMessage(jid, { text: "⏳ *Generating Pairing Code...* Please wait." });
 
+        const NodeCache = require("node-cache");
+        const msgRetryCounterCache = new NodeCache();
+
         try {
             const { state, saveCreds } = await useMultiFileAuthState(tempSessionDir);
             
@@ -26,7 +29,10 @@ module.exports = {
                 auth: state,
                 printQRInTerminal: false,
                 logger: pino({ level: "silent" }),
-                browser: ["Ubuntu", "Chrome", "20.0.04"]
+                browser: ["Ubuntu", "Chrome", "20.0.04"],
+                msgRetryCounterCache,
+                syncFullHistory: false,
+                linkPreviewHighQuality: false,
             });
 
             // 1. Request the code
@@ -49,7 +55,7 @@ module.exports = {
                 } catch (e) {
                     console.error("Pairing Request Error:", e);
                 }
-            }, 3000);
+            }, 6000);
 
             // 2. Monitor for connection
             pairSock.ev.on("creds.update", saveCreds);
@@ -59,7 +65,7 @@ module.exports = {
                 if (connection === "open") {
                     const credsPath = path.join(tempSessionDir, "creds.json");
                     const credsData = fs.readFileSync(credsPath, "utf-8");
-                    const sessionId = "Nexus~" + Buffer.from(credsData).toString("base64");
+                    const sessionId = "BWM~" + Buffer.from(credsData).toString("base64");
 
                     await sock.sendMessage(jid, { 
                         text: `✅ *Session Generated!*\nCopy the code below:`

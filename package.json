@@ -22,6 +22,7 @@
     "jsqr": "^1.4.0",
     "link-preview-js": "^3.2.0",
     "mumaker": "^2.0.0",
+    "node-cache": "^5.1.2",
     "nodemon": "^3.1.14",
     "pg": "^8.21.0",
     "pg-hstore": "^2.3.4",

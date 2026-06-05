@@ -23,7 +23,8 @@ async function connectionLogic() {
     if (process.env.SESSION_ID && !fs.existsSync(path.join(__dirname, authFolder, "creds.json"))) {
         console.log("📦 SESSION_ID found in .env. Attempting to restore session...");
         try {
-            const sessionId = process.env.SESSION_ID.replace("Nexus~", "");
+            const rawId = process.env.SESSION_ID.trim();
+            const sessionId = rawId.includes("~") ? rawId.split("~")[1] : rawId;
             const credsJson = Buffer.from(sessionId, "base64").toString("utf-8");
             
             if (!fs.existsSync(path.join(__dirname, authFolder))) {
@@ -42,12 +43,20 @@ async function connectionLogic() {
     if (!process.env.PAIRING_NUMBER && !state.creds.registered) {
         console.log("ℹ️  No PAIRING_NUMBER found in .env. Defaulting to QR code login.");
     }
+
+    const NodeCache = require("node-cache");
+    const msgRetryCounterCache = new NodeCache();
     
     const sock = makeWASocket({
         printQRInTerminal: !usePairingCode,
         auth: state,
         markOnline: true, 
         browser: ["Ubuntu", "Chrome", "20.0.04"],
+        msgRetryCounterCache,
+        defaultQueryTimeoutMs: undefined,
+        syncFullHistory: false,
+        linkPreviewHighQuality: false,
+        generateHighQualityLinkPreview: false,
     });
 
     if (usePairingCode && !state.creds.registered) {
@@ -66,7 +75,7 @@ async function connectionLogic() {
             } catch (err) {
                 console.error("❌ Failed to generate pairing code:", err);
             }
-        }, 3000);
+        }, 6000);
     }
 
     sock.ev.on("creds.update", saveCreds);
@@ -105,7 +114,7 @@ async function connectionLogic() {
                 
                 // Generate Session ID for Heroku
                 const creds = fs.readFileSync(path.join(__dirname, authFolder, "creds.json"), "utf-8");
-                const sessionId = "Nexus~" + Buffer.from(creds).toString("base64");
+                const sessionId = "BWM~" + Buffer.from(creds).toString("base64");
                 
                 console.log("\n========================================");
                 console.log("💾 YOUR PERSISTENT SESSION ID (Keep Secret!):");

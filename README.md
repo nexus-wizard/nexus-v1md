@@ -108,6 +108,9 @@ For hosting on platforms like **Render**, **Heroku**, or **Railway**, you must u
    - Paste your `Nexus~...` ID as the value.
 3. **Restart the Bot**: The bot will now log in automatically using that ID!
 
+> [!TIP]
+> **Recommended Deployment**: Connect your GitHub repository directly to your hosting panel (Render, Heroku, or Railway). This enables **Automatic Deployment** — whenever you push changes to your GitHub, your bot will update and restart itself automatically!
+
 ### Method 2: Manual File Method (ZIP Upload)
 If you are uploading the project ZIP to a panel (like a File Manager):
 1. Create a folder named `session` in the root directory (if it doesn't already exist).
