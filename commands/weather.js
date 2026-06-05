@@ -9,12 +9,12 @@ module.exports = {
         if (!city) return await sock.sendMessage(jid, { text: "❓ *Usage:* `.weather <city>`" });
 
         try {
-            const { data } = await axios.get(`https://api.giftedtech.my.id/api/search/weather?apikey=gifted&city=${encodeURIComponent(city)}`);
+            const { data } = await axios.get(`https://api.siputzx.my.id/api/tools/weather?city=${encodeURIComponent(city)}`);
             
-            if (!data.results) return await sock.sendMessage(jid, { text: "❌ City not found." });
+            if (!data || !data.data) return await sock.sendMessage(jid, { text: "❌ City not found." });
 
-            const w = data.results;
-            const weatherText = `🌤️ *WEATHER: ${w.location}*\n\n` +
+            const w = data.data;
+            const weatherText = `🌤️ *WEATHER: ${w.location || city}*\n━━━━━━━━━━━━━━━━━━━\n` +
                                 `🌡️ *Temp:* ${w.temperature}\n` +
                                 `🌥️ *Condition:* ${w.condition}\n` +
                                 `💧 *Humidity:* ${w.humidity}\n` +

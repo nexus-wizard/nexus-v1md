@@ -38,8 +38,9 @@ module.exports = {
                 games: uniqueCommands.filter(c => c.category === "games"),
                 anime: uniqueCommands.filter(c => c.category === "anime"),
                 fun: uniqueCommands.filter(c => c.category === "fun"),
+                textmaker: uniqueCommands.filter(c => c.category === "textmaker"),
                 economy: uniqueCommands.filter(c => c.category === "economy"),
-                media: uniqueCommands.filter(c => c.category === "media"),
+                media: uniqueCommands.filter(c => c.filter === "media"),
                 system: uniqueCommands.filter(c => c.category === "system"),
                 sports: uniqueCommands.filter(c => c.category === "sports"),
                 general: uniqueCommands.filter(c => c.category === "general" && !c.ownerOnly && !c.adminOnly)
@@ -118,6 +119,7 @@ module.exports = {
             menuBody += `🕹️ *GAMES MENU*\n`;
             menuBody += `🤝 *SOCIAL MENU*\n`;
             menuBody += `🎉 *FUN MENU*\n`;
+            menuBody += `✨ *TEXTMAKER MENU*\n`;
             menuBody += `💰 *ECONOMY MENU*\n`;
             menuBody += `🎬 *MEDIA MENU*\n`;
             menuBody += `🛰️ *SYSTEM MENU*\n`;

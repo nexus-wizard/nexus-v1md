@@ -1,4 +1,4 @@
-const axios = require("axios");
+const mediaApi = require("../lib/mediaApi");
 
 module.exports = {
     name: "tiktok",
@@ -14,19 +14,29 @@ module.exports = {
         await sock.sendMessage(jid, { text: "⏳ *Processing TikTok...*" });
 
         try {
-            const { data } = await axios.get(`https://api.giftedtech.my.id/api/download/tiktok?apikey=gifted&url=${encodeURIComponent(url)}`);
+            const video = await mediaApi.tiktokDownload(url);
             
-            if (!data.results || !data.results.video) {
+            if (!video) {
                 return await sock.sendMessage(jid, { text: "❌ Failed to fetch TikTok. Ensure the link is public." });
             }
 
-            await sock.sendMessage(jid, { 
-                video: { url: data.results.video },
-                caption: `🎬 *TikTok Downloader*\n\n✨ *User:* ${data.results.title}\n📦 *Format:* No Watermark\n\n_Nexus-1MD • Media Delivery_`
-            }, { quoted: msg });
+            if (video.buffer) {
+                await sock.sendPresenceUpdate('composing', jid);
+                await sock.sendMessage(jid, { 
+                    video: video.buffer,
+                    caption: `🎬 *TikTok Downloader*\n\n✨ *Author:* ${video.author || "Unknown"}\n📦 *Format:* No Watermark\n\n_Nexus-1MD • Media Delivery_`
+                }, { quoted: msg });
+            } else if (video.url) {
+                await sock.sendMessage(jid, { 
+                    text: `🎬 *TikTok Downloader*\n\n✨ *Author:* ${video.author || "Unknown"}\n⚠️ *Buffer download failed.*\n🔗 *Link:* ${video.url}`
+                }, { quoted: msg });
+            }
+
+
         } catch (err) {
             console.error("TikTok error:", err);
             await sock.sendMessage(jid, { text: "❌ Error connecting to TikTok downloader." });
         }
     }
 };
+

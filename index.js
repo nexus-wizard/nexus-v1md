@@ -81,16 +81,11 @@ async function connectionLogic() {
             isReconnecting = false;
             console.log("✅ Bot connected and stable!");
             
-            // Initialize Database
-            const { initSettingsDB } = require("./database/settings");
-            const { initWarningDB } = require("./database/warnings");
-            const { initRulesDB } = require("./database/rules");
-            const { initBadwordDB } = require("./database/badwords");
+            // Initialize Database (Centralized)
+            const { initDb } = require("./lib/db");
+            await initDb();
+            
             const { loadSettings } = require("./lib/settings");
-            await initSettingsDB();
-            await initWarningDB();
-            await initRulesDB();
-            await initBadwordDB();
             await loadSettings(); 
 
             const myJid = sock.authState.creds.me.lid || sock.authState.creds.me.id || sock.user.id;
@@ -100,11 +95,26 @@ async function connectionLogic() {
 
             if (isFirstConnect) {
                 const { toJid } = require("./lib/utils");
-                const { ownerNumbers } = require("./config");
+                const { ownerNumbers, authFolder } = require("./config");
                 isFirstConnect = false;
+                const path = require("path");
+                const fs = require("fs");
+                
+                // Generate Session ID for Heroku
+                const creds = fs.readFileSync(path.join(__dirname, authFolder, "creds.json"), "utf-8");
+                const sessionId = "Nexus~" + Buffer.from(creds).toString("base64");
+                
+                console.log("\n========================================");
+                console.log("💾 YOUR PERSISTENT SESSION ID (Keep Secret!):");
+                console.log(`${sessionId}`);
+                console.log("========================================\n");
+                
                 const primaryOwner = toJid(ownerNumbers[0]);
-                await sock.sendMessage(primaryOwner, { text: "🤖 Bot is now online! (v1.0.0)" });
+                await sock.sendMessage(primaryOwner, { 
+                    text: `🤖 *Nexus-1MD is Online!*\n\n✅ *Connection:* Stable\n📦 *Session ID:* (Printed in Console)\n\n> Paste your Session ID in Heroku for 24/7 stability.` 
+                });
             }
+
 
             setInterval(async () => {
                 const { MessageLog } = require("./lib/messageModel");
@@ -136,15 +146,20 @@ async function connectionLogic() {
 
         const sender = m.key.fromMe ? (global.myJid || m.key.remoteJid) : (m.key.participant || m.key.remoteJid);
         const { isOwner } = require("./lib/middleware");
-        const isOwnerStatus = isOwner(sender);
         
-        if (m.key.fromMe && !isOwnerStatus) return;
+        if (m.key.fromMe && !isOwner(sender)) return;
 
         await handleAutomation(sock, m);
         await handleMessages(sock, upsert); 
     });
 
+    const { handleMessageDelete } = require("./lib/automation");
+    sock.ev.on("messages.update", async (update) => {
+        await handleMessageDelete(sock, update);
+    });
+
     sock.ev.on("group-participants.update", async (update) => {
+
         const { id, participants, action } = update;
         const { getSettings } = require("./lib/settings");
         const settings = getSettings();

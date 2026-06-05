@@ -6,18 +6,29 @@ module.exports = {
     description: "Translate text to English (default).",
     category: "general",
     async execute({ sock, jid, args, msg }) {
-        const textToTranslate = args.join(" ");
-        if (!textToTranslate) return await sock.sendMessage(jid, { text: "❓ *Usage:* `.translate <text>`" });
+        let targetLang = "en";
+        let textToTranslate = args.join(" ");
+
+        // Check if first arg is a language code (2 letters)
+        if (args[0] && args[0].length === 2) {
+            targetLang = args[0].toLowerCase();
+            textToTranslate = args.slice(1).join(" ");
+        }
+
+        if (!textToTranslate) return await sock.sendMessage(jid, { text: "❓ *Usage:* `.translate <text>` or `.translate <lang> <text>`\n\nExample: `.translate sw Hello`" });
 
         try {
-            // Using a public translation API (defaults to English target)
-            const { data } = await axios.get(`https://api.giftedtech.my.id/api/tools/translate?apikey=gifted&text=${encodeURIComponent(textToTranslate)}&to=en`);
+            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(textToTranslate)}`;
+            const { data } = await axios.get(url);
             
-            if (!data.results) return await sock.sendMessage(jid, { text: "❌ Translation failed." });
+            if (!data || !data[0]) return await sock.sendMessage(jid, { text: "❌ Translation failed." });
 
-            const translationText = `🌍 *TRANSLATION*\n\n` +
+            // Extract translated text from Google's complex array response
+            const translation = data[0].map(item => item[0]).join("");
+
+            const translationText = `🌍 *TRANSLATION*\n━━━━━━━━━━━━━━━━━━━\n` +
                                     `*Original:* ${textToTranslate}\n` +
-                                    `*English:* ${data.results}`;
+                                    `*Result (${targetLang.toUpperCase()}):* ${translation}\n━━━━━━━━━━━━━━━━━━━`;
 
             await sock.sendMessage(jid, { text: translationText }, { quoted: msg });
         } catch (err) {

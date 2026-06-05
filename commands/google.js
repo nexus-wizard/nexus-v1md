@@ -10,19 +10,19 @@ module.exports = {
         if (!query) return await sock.sendMessage(jid, { text: "❓ *Usage:* `.google <query>`" });
 
         try {
-            // Using a public API for reliable results
-            const { data } = await axios.get(`https://api.giftedtech.my.id/api/search/google?apikey=gifted&query=${encodeURIComponent(query)}`);
+            // Using a stable search alternative (DuckDuckGo or Vreden)
+            const { data } = await axios.get(`https://api.vreden.my.id/api/google?query=${encodeURIComponent(query)}`);
             
-            if (!data.results || data.results.length === 0) {
+            if (!data.result || data.result.length === 0) {
                 return await sock.sendMessage(jid, { text: "❌ No results found for your query." });
             }
 
-            let response = `🔍 *GOOGLE SEARCH: ${query}*\n\n`;
-            data.results.slice(0, 5).forEach((res, i) => {
+            let response = `🔍 *GOOGLE SEARCH: ${query}*\n━━━━━━━━━━━━━━━━━━━\n\n`;
+            data.result.slice(0, 5).forEach((res, i) => {
                 response += `*#${i + 1}:* ${res.title}\n🔗 ${res.link}\n\n`;
             });
 
-            await sock.sendMessage(jid, { text: response }, { quoted: msg });
+            await sock.sendMessage(jid, { text: response + `━━━━━━━━━━━━━━━━━━━` }, { quoted: msg });
         } catch (err) {
             console.error("Google error:", err);
             await sock.sendMessage(jid, { text: "❌ Error connecting to search service." });

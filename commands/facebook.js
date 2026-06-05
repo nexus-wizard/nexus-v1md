@@ -1,10 +1,11 @@
-const axios = require("axios");
+const mediaApi = require("../lib/mediaApi");
 
 module.exports = {
     name: "facebook",
     aliases: ["fb", "fbdl"],
     description: "Download Facebook videos.",
     category: "download",
+    cooldown: 15000,
     async execute({ sock, jid, args, msg }) {
         const url = args[0];
         if (!url || !url.includes("facebook.com") && !url.includes("fb.watch")) {
@@ -14,19 +15,29 @@ module.exports = {
         await sock.sendMessage(jid, { text: "⏳ *Processing Facebook video...*" });
 
         try {
-            const { data } = await axios.get(`https://api.giftedtech.my.id/api/download/facebook?apikey=gifted&url=${encodeURIComponent(url)}`);
+            const video = await mediaApi.facebookDownload(url);
             
-            if (!data.result || !data.result.hd) {
+            if (!video) {
                 return await sock.sendMessage(jid, { text: "❌ Failed to fetch Facebook video. Ensure it is public." });
             }
 
-            await sock.sendMessage(jid, { 
-                video: { url: data.result.hd || data.result.sd },
-                caption: "🔵 *Facebook Video Downloader*"
-            }, { quoted: msg });
+            if (video.buffer) {
+                await sock.sendPresenceUpdate('composing', jid); // for video it's usually composing
+                await sock.sendMessage(jid, { 
+                    video: video.buffer,
+                    caption: `🔵 *Facebook Video Downloader*\n\n✨ *Title:* ${video.title || "Unknown"}\n\n_Nexus-1MD • Media Delivery_`
+                }, { quoted: msg });
+            } else if (video.url) {
+                await sock.sendMessage(jid, { 
+                    text: `🔵 *Facebook Video Downloader*\n\n✨ *Title:* ${video.title || "Unknown"}\n⚠️ *Buffer download failed.*\n🔗 *Link:* ${video.url}`
+                }, { quoted: msg });
+            }
+
+
         } catch (err) {
             console.error("Facebook error:", err);
             await sock.sendMessage(jid, { text: "❌ Error connecting to Facebook service." });
         }
     }
 };
+

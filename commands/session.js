@@ -20,22 +20,25 @@ module.exports = {
             const sessionId = Buffer.from(creds).toString("base64");
             const finalizedId = `Nexus~${sessionId}`;
 
+            // 1️⃣ Instructions header
             await sock.sendMessage(jid, { 
-                text: `📦 *NEXUS-1MD SESSION ID*\n\n` +
-                     `_Copy the long code below and paste it into your server environment._\n\n` +
-                     `*ID:* \n\n${finalizedId}\n\n` +
-                     `⚠️ *WARNING:* Keep this ID private! Anyone with this code can access your WhatsApp account.`
+                text: `📦 *NEXUS-1MD SESSION ID*\n━━━━━━━━━━━━━━━━━━━\n\n` +
+                     `Your Session ID is ready! Here's how to use it:\n\n` +
+                     `1️⃣ Copy the code in the *next message*\n` +
+                     `2️⃣ Go to your hosting dashboard (e.g. Render)\n` +
+                     `3️⃣ Add it as an env variable: \`SESSION_ID\`\n\n` +
+                     `⚠️ *KEEP THIS PRIVATE!* Anyone with this code controls your WhatsApp.`
             }, { quoted: msg });
 
-            // Also send as a separate message for easy copying
+            // 2️⃣ Raw ID — easy one-tap copy
             await sock.sendMessage(jid, { text: finalizedId });
 
-            // 📂 Also send the raw creds.json file as a backup document
+            // 3️⃣ creds.json backup file
             await sock.sendMessage(jid, { 
                 document: fs.readFileSync(credsPath),
                 fileName: "creds.json",
                 mimetype: "application/json",
-                caption: "📁 *Backup:* This is your `creds.json` file. You can download this and put it in the `session/` folder if you ever lose access."
+                caption: "📁 *Backup File* — Place this in your `session/` folder if you ever need to restore manually."
             }, { quoted: msg });
 
         } catch (err) {
