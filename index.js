@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 3000;
 const { DisconnectReason, useMultiFileAuthState } = require("@whiskeysockets/baileys");
 const makeWASocket = require("@whiskeysockets/baileys").default;
 const qrcode = require("qrcode-terminal");
+const zlib = require("zlib");
 
 const { authFolder } = require("./config");
 const { handleMessages } = require("./lib/commandHandler");
@@ -37,7 +38,6 @@ async function connectionLogic() {
             const rawId = process.env.SESSION_ID.trim();
             const sessionId = rawId.includes("~") ? rawId.split("~")[1] : (rawId.startsWith("BWM") || rawId.startsWith("XMD") ? rawId.slice(4) : rawId);
             const buffer = Buffer.from(sessionId, "base64");
-            const zlib = require("zlib");
             
             let credsJson = "";
             
@@ -52,21 +52,23 @@ async function connectionLogic() {
                 }
             }
 
-            // 2. Smart JSON Search & Validation
-            console.log(`📦 Decoded SESSION_ID (Length: ${credsJson.length})`);
+            // 2. Smart Binary Search & Validation
+            console.log(`📦 Decoded SESSION_ID (Buffer Length: ${buffer.length})`);
 
-            const extractValidJson = (str) => {
-                const startIndex = str.indexOf("{");
-                if (startIndex === -1) return null;
+            const extractValidJsonFromBuffer = (buf) => {
+                const start = buf.indexOf(Buffer.from("{"));
+                if (start === -1) return null;
                 
-                // Try from every { until we find one that parses
-                for (let i = startIndex; i < str.length; i++) {
-                    if (str[i] === "{") {
+                // Try to find a valid JSON from each { occurrence
+                for (let i = start; i < buf.length; i++) {
+                    if (buf[i] === 123) { // 123 is '{'
                         try {
-                            const segment = str.substring(i);
-                            // Find matching } or just try to parse the rest
-                            JSON.parse(segment);
-                            return segment;
+                            const segment = buf.slice(i).toString("utf-8");
+                            // Simple validation: look for "creds" or "noiseKey" which are standard in Baileys
+                            if (segment.includes("noiseKey") || segment.includes("advSecretKey")) {
+                                JSON.parse(segment.substring(0, segment.lastIndexOf("}") + 1));
+                                return segment.substring(0, segment.lastIndexOf("}") + 1);
+                            }
                         } catch (err) {
                             // try next {
                         }
@@ -75,15 +77,18 @@ async function connectionLogic() {
                 return null;
             };
 
-            const finalJson = extractValidJson(credsJson);
+            const finalJson = extractValidJsonFromBuffer(buffer) || (credsJson.includes("{") ? credsJson.substring(credsJson.indexOf("{")) : null);
+
+            if (!fs.existsSync(path.join(__dirname, authFolder))) {
+                fs.mkdirSync(path.join(__dirname, authFolder), { recursive: true });
+            }
 
             if (finalJson) {
                 console.log("✅ Valid JSON Session found and verified.");
                 fs.writeFileSync(path.join(__dirname, authFolder, "creds.json"), finalJson);
             } else {
                 console.error("❌ Error: Could not find valid JSON in Session ID.");
-                // Fallback: save as is, maybe it's raw
-                fs.writeFileSync(path.join(__dirname, authFolder, "creds.json"), credsJson);
+                fs.writeFileSync(path.join(__dirname, authFolder, "creds.json"), buffer);
             }
             console.log("✅ Session file process finished.");
         } catch (e) {
@@ -110,6 +115,8 @@ async function connectionLogic() {
         syncFullHistory: false,
         linkPreviewHighQuality: false,
         generateHighQualityLinkPreview: false,
+        connectTimeoutMs: 60000,
+        keepAliveIntervalMs: 30000,
     });
 
     if (usePairingCode && !state.creds.registered) {
