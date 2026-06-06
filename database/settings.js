@@ -6,7 +6,7 @@ let SettingsDB = null;
 if (sequelize) {
     SettingsDB = sequelize.define('settings', {
         // 1. Bot Mode
-        publicMode: { type: DataTypes.BOOLEAN, defaultValue: false },
+        publicMode: { type: DataTypes.BOOLEAN, defaultValue: true },
         
         // 2. Automation Toggles
         antiLink: { type: DataTypes.BOOLEAN, defaultValue: false },
@@ -69,8 +69,7 @@ const getBotSettings = async () => {
     const { isOnline } = require('../lib/db');
     const jsonStore = require('../lib/jsonStore');
 
-    const defaults = { 
-        publicMode: false,
+        publicMode: true,
         antiDelete: true,
         antiEdit: true,
         autoViewStatus: true,
