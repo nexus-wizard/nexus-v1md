@@ -12,7 +12,7 @@ if (sequelize) {
         antiLink: { type: DataTypes.BOOLEAN, defaultValue: false },
         antiTag: { type: DataTypes.BOOLEAN, defaultValue: false },
         antiBadword: { type: DataTypes.BOOLEAN, defaultValue: false },
-        antiSpam: { type: DataTypes.BOOLEAN, defaultValue: false },
+        antiSpam: { type: DataTypes.BOOLEAN, defaultValue: true },
         antiDelete: { type: DataTypes.BOOLEAN, defaultValue: true },
         antiEdit: { type: DataTypes.BOOLEAN, defaultValue: true },
         antiCall: { type: DataTypes.BOOLEAN, defaultValue: false },
@@ -73,6 +73,7 @@ const getBotSettings = async () => {
         publicMode: true,
         antiDelete: true,
         antiEdit: true,
+        antiSpam: true,
         autoViewStatus: false,
         lockedCommands: ""
     };
