@@ -10,9 +10,11 @@ module.exports = {
     aliases: ["up", "upgrade"],
     description: "Update the bot to the latest version from the developer's GitHub.",
     category: "owner",
+    sudoOnly: true, // 🔒 Strict security
     execute: async ({ sock, jid, msg, args }) => {
+        const { isSudo } = require("../lib/middleware");
         const sender = msg.key.participant || msg.key.remoteJid;
-        if (!isOwner(sender)) return;
+        if (!isSudo(sender)) return; // Double-check protection
 
         await sock.sendMessage(jid, { text: "🔄 *Checking for updates from main repo...*" });
 

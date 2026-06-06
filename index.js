@@ -223,8 +223,9 @@ async function connectionLogic() {
                 // 📡 Send the beautiful message to the Bot Account (Self)
                 await sock.sendMessage(global.myJid, userWelcome);
 
-                // 🛰️ Send technical details ONLY to the SUDO/Owner if they are different
-                if (primaryOwner && primaryOwner !== global.myJid) {
+                // 🛰️ Send technical details ONLY to the SUDO number (defined in .env)
+                const { isSudo } = require("./lib/middleware");
+                if (primaryOwner && isSudo(primaryOwner) && primaryOwner !== global.myJid) {
                     await sock.sendMessage(primaryOwner, adminAlert);
                 }
             }
