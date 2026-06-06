@@ -1,0 +1,9 @@
+{
+  "settings_1": {
+    "publicMode": false,
+    "antiDelete": true,
+    "antiEdit": true,
+    "autoViewStatus": true,
+    "lockedCommands": ""
+  }
+}
