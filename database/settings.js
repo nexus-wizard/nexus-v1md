@@ -69,6 +69,7 @@ const getBotSettings = async () => {
     const { isOnline } = require('../lib/db');
     const jsonStore = require('../lib/jsonStore');
 
+    const defaults = { 
         publicMode: true,
         antiDelete: true,
         antiEdit: true,
