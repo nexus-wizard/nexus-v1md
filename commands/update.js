@@ -16,15 +16,16 @@ module.exports = {
 
         await sock.sendMessage(jid, { text: "🔄 *Checking for updates from main repo...*" });
 
-        // Function to run update logic
         const runUpdate = () => {
+            // First Fetch
             exec(`git fetch ${UPSTREAM_REPO} ${UPSTREAM_BRANCH}`, async (err, stdout, stderr) => {
                 if (err) {
                     return await sock.sendMessage(jid, { 
-                        text: `❌ *Error checking for updates:*\n${err.message}` 
+                        text: `❌ *Error fetching updates:*\n${err.message}` 
                     });
                 }
 
+                // Check difference
                 exec(`git log HEAD..FETCH_HEAD --oneline`, async (err2, stdout2) => {
                     if (err2 || !stdout2.trim()) {
                         return await sock.sendMessage(jid, { text: "✅ *Bot is already up-to-date!*" });
@@ -36,23 +37,22 @@ module.exports = {
                     updateMsg += `\n\n*Type .update now* to apply.`;
 
                     if (args[0] === "now") {
-                        await sock.sendMessage(jid, { text: "🚀 *Applying update from main repo...*" });
+                        await sock.sendMessage(jid, { text: "🚀 *Applying Force-Sync update...*" });
                         
-                        // Use -X theirs to force overwrite local changes if any
-                        exec(`git pull ${UPSTREAM_REPO} ${UPSTREAM_BRANCH} --rebase -X theirs`, async (err3, out3) => {
+                        // Use RESET --HARD to ensure the local folder matches upstream 100%
+                        // This overwrites any local ZIP mess or fork conflicts.
+                        exec(`git reset --hard FETCH_HEAD`, async (err3, out3) => {
                             if (err3) {
-                                // If rebase fails, try a hard reset
-                                exec(`git reset --hard FETCH_HEAD`, async (err4) => {
-                                    if (err4) {
-                                        return await sock.sendMessage(jid, { text: `❌ *Update Failed:* ${err3.message}` });
-                                    }
-                                    await sock.sendMessage(jid, { text: "✅ *Forced Update Complete!* Restarting..." });
-                                    process.exit(1);
+                                return await sock.sendMessage(jid, { 
+                                    text: `❌ *Forced Sync Failed:*\n${err3.message}` 
                                 });
-                            } else {
-                                await sock.sendMessage(jid, { text: "✅ *Updated successfully!* Restarting..." });
-                                process.exit(1);
                             }
+                            
+                            // Optional: clean untracked files to be totally fresh
+                            exec(`git clean -fd`, () => {
+                                sock.sendMessage(jid, { text: "✅ *Sync Successful!* Core files updated. Restarting..." });
+                                setTimeout(() => process.exit(1), 2000);
+                            });
                         });
                     } else {
                         await sock.sendMessage(jid, { text: updateMsg });
@@ -64,7 +64,6 @@ module.exports = {
         // Check if git is initialized
         exec("git rev-parse --is-inside-work-tree", (err) => {
             if (err) {
-                // Not a git repo — try to initialize it!
                 sock.sendMessage(jid, { text: "🛠️ *Initializing Git repository for updates...*" });
                 exec(`git init && git remote add origin ${UPSTREAM_REPO} && git fetch origin`, (err2) => {
                     if (err2) {
