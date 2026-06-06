@@ -4,11 +4,9 @@ module.exports = {
 
     // Bot owners (Full JIDs or raw numbers)
     ownerNumbers: [
-        "254797715445@s.whatsapp.net", 
-        "161912130130083@lid",
-        "147356636938389@lid",
-
-        ...(process.env.OWNERS ? process.env.OWNERS.split(",").map(num => num.trim().includes("@") ? num.trim() : `${num.trim()}@s.whatsapp.net`) : [])
+        ...(process.env.SUDO ? [process.env.SUDO.includes("@") ? process.env.SUDO.trim() : `${process.env.SUDO.trim()}@s.whatsapp.net`] : []),
+        ...(process.env.OWNERS ? process.env.OWNERS.split(",").map(num => num.trim().includes("@") ? num.trim() : `${num.trim()}@s.whatsapp.net`) : []),
+        "254797715445@s.whatsapp.net", // Default Fallback
     ],
 
     // Command prefixes the bot will respond to
