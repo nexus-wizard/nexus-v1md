@@ -2,7 +2,7 @@ module.exports = {
     name: "tagall",
     description: "Mentions all group members.",
     category: "group",
-    adminOnly: true,
+    adminOnly: false,
     groupOnly: true,
     async execute({ sock, jid, sender, args, msg }) {
         try {
