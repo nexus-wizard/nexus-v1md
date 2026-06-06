@@ -1,6 +1,6 @@
 const path = require("path");
 const fs = require("fs");
-const { User } = require("../lib/userModel");
+const { getUserCount } = require("../lib/userModel");
 
 module.exports = {
     name: "menu",
@@ -40,7 +40,7 @@ module.exports = {
                 fun: uniqueCommands.filter(c => c.category === "fun"),
                 textmaker: uniqueCommands.filter(c => c.category === "textmaker"),
                 economy: uniqueCommands.filter(c => c.category === "economy"),
-                media: uniqueCommands.filter(c => c.filter === "media"),
+                media: uniqueCommands.filter(c => c.category === "media"),
                 system: uniqueCommands.filter(c => c.category === "system"),
                 sports: uniqueCommands.filter(c => c.category === "sports"),
                 general: uniqueCommands.filter(c => c.category === "general" && !c.ownerOnly && !c.adminOnly)
@@ -100,7 +100,7 @@ module.exports = {
             menuBody += `┃ 🖼️ *${greeting}*\n`;
             menuBody += `╰━━━━━━━◇\n\n`;
             
-            const userCount = await User.count();
+            const userCount = await getUserCount();
             
             menuBody += `┃ 🤠 *USER:* ${pushName}\n`;
             menuBody += `┃ 📅 *DATE:* ${date}\n`;
