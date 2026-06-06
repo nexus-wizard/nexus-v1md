@@ -114,8 +114,8 @@ async function connectionLogic() {
     
     const sock = makeWASocket({
         auth: state,
-        markOnline: true, 
-        browser: ["Ubuntu", "Chrome", "20.0.04"],
+        markOnline: false, // Don't force online status immediately
+        browser: ["Windows", "Chrome", "110.0.5481.178"], // More common modern browser
         msgRetryCounterCache,
         defaultQueryTimeoutMs: undefined,
         syncFullHistory: false,

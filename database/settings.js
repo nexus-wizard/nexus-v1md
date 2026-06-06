@@ -22,7 +22,7 @@ if (sequelize) {
         autoDeleteTime: { type: DataTypes.INTEGER, defaultValue: 30000 },
         
         // 3. Status/Presence Expansion
-        autoViewStatus: { type: DataTypes.BOOLEAN, defaultValue: true },
+        autoViewStatus: { type: DataTypes.BOOLEAN, defaultValue: false },
         autoLikeStatus: { type: DataTypes.BOOLEAN, defaultValue: false },
         autoReplyStatus: { type: DataTypes.BOOLEAN, defaultValue: false },
         statusReplyText: { type: DataTypes.STRING, defaultValue: 'Nice status! ✨' },
@@ -73,7 +73,7 @@ const getBotSettings = async () => {
         publicMode: true,
         antiDelete: true,
         antiEdit: true,
-        autoViewStatus: true,
+        autoViewStatus: false,
         lockedCommands: ""
     };
 
