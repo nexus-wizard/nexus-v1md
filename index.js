@@ -40,74 +40,64 @@ async function connectionLogic() {
             const buffer = Buffer.from(sessionId, "base64");
             
             let credsJson = "";
-            
-            // 1. Try Gzip/Deflate Decompression
-            try {
-                credsJson = zlib.gunzipSync(buffer).toString("utf-8");
-            } catch (e) {
-                try {
-                    credsJson = zlib.inflateSync(buffer).toString("utf-8");
-                } catch (e2) {
-                    credsJson = buffer.toString("utf-8");
+            const decodeBuffer = (buf) => {
+                try { return zlib.gunzipSync(buf).toString("utf-8"); } catch {
+                    try { return zlib.inflateSync(buf).toString("utf-8"); } catch {
+                        return buf.toString("utf-8");
+                    }
                 }
+            };
+
+            credsJson = decodeBuffer(buffer);
+            // Check for double base64
+            if (!credsJson.includes("{") && /^[a-zA-Z0-9+/=]+$/.test(credsJson.trim())) {
+                const nestedBuffer = Buffer.from(credsJson.trim(), "base64");
+                credsJson = decodeBuffer(nestedBuffer);
             }
 
             // 2. Smart Binary Search & Validation
-            console.log(`📦 Decoded SESSION_ID (Buffer Length: ${buffer.length})`);
-
             const extractValidJsonFromBuffer = (buf) => {
-                const start = buf.indexOf(Buffer.from("{"));
-                if (start === -1) return null;
+                const text = buf.toString("utf-8");
+                const firstBrace = text.indexOf("{");
+                if (firstBrace === -1) return null;
                 
-                // Try to find a valid JSON from each { occurrence
-                for (let i = start; i < buf.length; i++) {
-                    if (buf[i] === 123) { // 123 is '{'
+                // Scan for valid JSON blocks
+                for (let i = 0; i < text.length; i++) {
+                    if (text[i] === "{") {
                         try {
-                            const segment = buf.slice(i).toString("utf-8");
-                            // Simple validation: look for "creds" or "noiseKey" which are standard in Baileys
-                            if (segment.includes("noiseKey") || segment.includes("advSecretKey")) {
-                                JSON.parse(segment.substring(0, segment.lastIndexOf("}") + 1));
-                                return segment.substring(0, segment.lastIndexOf("}") + 1);
+                            const candidate = text.substring(i, text.lastIndexOf("}") + 1);
+                            if (candidate.includes("noiseKey") || candidate.includes("creds")) {
+                                JSON.parse(candidate);
+                                return candidate;
                             }
-                        } catch (err) {
-                            // try next {
-                        }
+                        } catch (e) {}
                     }
                 }
                 return null;
             };
 
-            const finalJson = extractValidJsonFromBuffer(buffer) || (credsJson.includes("{") ? credsJson.substring(credsJson.indexOf("{")) : null);
-
-            if (!fs.existsSync(path.join(__dirname, authFolder))) {
-                fs.mkdirSync(path.join(__dirname, authFolder), { recursive: true });
-            }
+            const finalJson = extractValidJsonFromBuffer(Buffer.from(credsJson)) || extractValidJsonFromBuffer(buffer);
 
             if (finalJson) {
-                console.log("✅ Valid JSON Session found and verified.");
+                console.log(`✅ Session JSON recovered (Size: ${finalJson.length} bytes)`);
                 try {
                     let parsed = JSON.parse(finalJson);
                     let creds = parsed.creds || (parsed.noiseKey ? parsed : null);
 
                     if (creds) {
-                        console.log("ℹ️  Structuring credentials with registration safety...");
-                        // 🛡️ FORCE REGISTERED STATUS TO BYPASS LOOP
                         creds.registered = true;
-                        
-                        // Ensure it's the root object being written
-                        fs.writeFileSync(path.join(__dirname, authFolder, "creds.json"), JSON.stringify(creds));
-                    } else {
-                        fs.writeFileSync(path.join(__dirname, authFolder, "creds.json"), finalJson);
+                        const finalPath = path.join(__dirname, authFolder, "creds.json");
+                        if (!fs.existsSync(path.dirname(finalPath))) fs.mkdirSync(path.dirname(finalPath), { recursive: true });
+                        fs.writeFileSync(finalPath, JSON.stringify(creds));
+                        console.log(`✅ Credentials written to: ${finalPath}`);
                     }
                 } catch (e) {
-                    fs.writeFileSync(path.join(__dirname, authFolder, "creds.json"), finalJson);
+                    console.error("❌ Session JSON parse failed:", e.message);
                 }
-            }
- else {
+            } else {
                 console.error("❌ Error: Could not find valid JSON in Session ID.");
-                fs.writeFileSync(path.join(__dirname, authFolder, "creds.json"), buffer);
             }
-            console.log("✅ Session file process finished.");
+            console.log("✅ Session restoration flow complete.");
         } catch (e) {
             console.error("❌ Failed to restore session from ID:", e.message);
         }
