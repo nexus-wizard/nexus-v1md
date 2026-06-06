@@ -286,6 +286,20 @@ async function connectionLogic() {
         await handleMessageDelete(sock, update);
     });
 
+    // 📞 Anti-Call Protection (Controlled)
+    sock.ev.on("call", async (calls) => {
+        const { getSettings } = require("./lib/settings");
+        const settings = getSettings();
+        if (settings.antiCall) {
+            for (const call of calls) {
+                if (call.status === "offer") {
+                    console.log(`📞 Anti-Call: Rejecting call from ${call.from}`);
+                    await sock.rejectCall(call.id, call.from);
+                }
+            }
+        }
+    });
+
     sock.ev.on("group-participants.update", async (update) => {
 
         const { id, participants, action } = update;
