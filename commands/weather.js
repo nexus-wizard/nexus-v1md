@@ -9,13 +9,13 @@ module.exports = {
         if (!city) return await sock.sendMessage(jid, { text: "❓ *Usage:* `.weather <city>`" });
 
         try {
-            const { data } = await axios.get(`https://api.siputzx.my.id/api/tools/weather?city=${encodeURIComponent(city)}`);
+            const { data } = await axios.get(`https://api.nabees.online/api/weather?city=${encodeURIComponent(city)}`);
             
-            if (!data || !data.data) return await sock.sendMessage(jid, { text: "❌ City not found." });
+            if (!data || !data.result) return await sock.sendMessage(jid, { text: "❌ City not found." });
 
-            const w = data.data;
+            const w = data.result;
             const weatherText = `🌤️ *WEATHER: ${w.location || city}*\n━━━━━━━━━━━━━━━━━━━\n` +
-                                `🌡️ *Temp:* ${w.temperature}\n` +
+                                `🌡️ *Temp:* ${w.temp} °C\n` +
                                 `🌥️ *Condition:* ${w.condition}\n` +
                                 `💧 *Humidity:* ${w.humidity}\n` +
                                 `💨 *Wind:* ${w.wind}\n\n` +
