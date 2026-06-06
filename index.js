@@ -221,7 +221,9 @@ async function connectionLogic() {
                 };
 
                 // 📡 Send the beautiful message to the Bot Account (Self)
+                console.log("📨 Sending startup welcome message to bot...");
                 await sock.sendMessage(global.myJid, userWelcome);
+                console.log("✅ Startup message sent successfully.");
 
                 // 🛰️ Send technical details ONLY to the SUDO number (defined in .env)
                 const { isSudo } = require("./lib/middleware");

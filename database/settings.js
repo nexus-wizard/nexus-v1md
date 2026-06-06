@@ -38,8 +38,8 @@ if (sequelize) {
         autoReactDM: { type: DataTypes.BOOLEAN, defaultValue: false },
         
         // 5. Group Events (Welcome/Goodbye)
-        welcome: { type: DataTypes.BOOLEAN, defaultValue: true },
-        goodbye: { type: DataTypes.BOOLEAN, defaultValue: true },
+        welcome: { type: DataTypes.BOOLEAN, defaultValue: false },
+        goodbye: { type: DataTypes.BOOLEAN, defaultValue: false },
         welcomeMsg: { 
             type: DataTypes.STRING, 
             defaultValue: 'Hi @user, welcome to *@group*! 👋' 
