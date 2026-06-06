@@ -105,10 +105,8 @@ async function connectionLogic() {
 
     const { state, saveCreds } = await useMultiFileAuthState(authFolder);
     const usePairingCode = !!process.env.PAIRING_NUMBER && !state.creds.registered;
-    if (!process.env.PAIRING_NUMBER && !state.creds.registered && !process.env.SESSION_ID) {
-        console.log("ℹ️  No PAIRING_NUMBER found in .env. Defaulting to QR code login.");
-    } else if (process.env.SESSION_ID && !state.creds.registered) {
-        console.log("ℹ️  Using SESSION_ID for restoration. QR and Pairing Code are disabled.");
+    if (!state.creds.registered && !process.env.PAIRING_NUMBER && !process.env.SESSION_ID) {
+        console.log("ℹ️  No PAIRING_NUMBER or SESSION_ID found. Defaulting to QR code login.");
     }
 
     const NodeCache = require("node-cache");
