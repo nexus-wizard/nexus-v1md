@@ -85,7 +85,20 @@ async function connectionLogic() {
 
             if (finalJson) {
                 console.log("✅ Valid JSON Session found and verified.");
-                fs.writeFileSync(path.join(__dirname, authFolder, "creds.json"), finalJson);
+                try {
+                    const parsed = JSON.parse(finalJson);
+                    console.log(`📦 Session structure keys: ${Object.keys(parsed).join(", ")}`);
+                    if (parsed.creds && parsed.keys) {
+                        console.log("ℹ️  Detected Legacy Single-File Session. Converting to Multi-File...");
+                        fs.writeFileSync(path.join(__dirname, authFolder, "creds.json"), JSON.stringify(parsed.creds));
+                        // Note: Multi-file keys are handled per-request by baileys, 
+                        // but for now we just ensure creds are there.
+                    } else {
+                        fs.writeFileSync(path.join(__dirname, authFolder, "creds.json"), finalJson);
+                    }
+                } catch (e) {
+                    fs.writeFileSync(path.join(__dirname, authFolder, "creds.json"), finalJson);
+                }
             } else {
                 console.error("❌ Error: Could not find valid JSON in Session ID.");
                 fs.writeFileSync(path.join(__dirname, authFolder, "creds.json"), buffer);
@@ -108,7 +121,6 @@ async function connectionLogic() {
     const msgRetryCounterCache = new NodeCache();
     
     const sock = makeWASocket({
-        printQRInTerminal: !usePairingCode,
         auth: state,
         markOnline: true, 
         browser: ["Ubuntu", "Chrome", "20.0.04"],
