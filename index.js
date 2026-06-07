@@ -284,10 +284,12 @@ async function connectionLogic() {
         const sender = m.key.fromMe ? (global.myJid || m.key.remoteJid) : (m.key.participant || m.key.remoteJid);
         const { isOwner } = require("./lib/middleware");
         
-        if (m.key.fromMe && !isOwner(sender)) return;
-
-        await handleAutomation(sock, m);
-        await handleMessages(sock, upsert); 
+        if (m.key.fromMe) {
+            // Self messages are always "owner" context
+            await handleAutomation(sock, m);
+            await handleMessages(sock, upsert);
+            return;
+        }
     });
 
     const { handleMessageDelete } = require("./lib/automation");
