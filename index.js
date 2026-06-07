@@ -16,6 +16,15 @@ const zlib = require("zlib");
 const { authFolder } = require("./config");
 const { handleMessages } = require("./lib/commandHandler");
 
+const maskJid = (jid) => {
+    if (!jid || typeof jid !== "string") return jid;
+    const parts = jid.split("@");
+    if (parts.length < 2) return jid;
+    const num = parts[0];
+    if (num.length <= 4) return `****@${parts[1]}`;
+    return `${num.slice(0, 4)}****${num.slice(-2)}@${parts[1]}`;
+};
+
 let isFirstConnect = true;
 let isReconnecting = false;
 
@@ -180,7 +189,7 @@ async function connectionLogic() {
             const myJid = sock.authState.creds.me.lid || sock.authState.creds.me.id || sock.user.id;
             global.myJid = myJid.includes(":") ? myJid.split(":")[0] + "@s.whatsapp.net" : (myJid.includes("@") ? myJid : myJid + "@s.whatsapp.net");
             
-            console.log(`📊 Unified settings loaded. SELF-ID: ${global.myJid}`);
+            console.log(`📊 Unified settings loaded. SELF-ID: ${maskJid(global.myJid)}`);
 
             // 🛡️ Super-Admin Detection
             const { isSudo } = require("./lib/middleware");
@@ -188,7 +197,7 @@ async function connectionLogic() {
             const { toJid } = require("./lib/utils");
             const primarySudo = process.env.SUDO ? toJid(process.env.SUDO) : toJid(ownerNumbers[0]);
             
-            console.log(`🛡️  Super-Admin (SUDO): ${primarySudo || "NOT CONFIGURED"}`);
+            console.log(`🛡️  Super-Admin (SUDO): ${primarySudo ? maskJid(primarySudo) : "NOT CONFIGURED"}`);
 
             if (isFirstConnect) {
                 isFirstConnect = false;
