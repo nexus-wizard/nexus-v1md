@@ -5,6 +5,7 @@ module.exports = {
     aliases: ["antied"],
     description: "Toggle Anti-Edit feature (detect when someone edits a message).",
     category: "admin",
+    isOwnerOnly: true,
     async execute({ sock, jid, args, msg }) {
         const settings = getSettings();
         

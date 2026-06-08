@@ -5,6 +5,7 @@ module.exports = {
     aliases: ["antidel"],
     description: "Toggle Anti-Delete feature.",
     category: "admin",
+    isOwnerOnly: true,
     async execute({ sock, jid, args, msg }) {
         const settings = getSettings();
         
