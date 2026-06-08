@@ -43,6 +43,7 @@ module.exports = {
                 media: uniqueCommands.filter(c => c.category === "media"),
                 system: uniqueCommands.filter(c => c.category === "system"),
                 sports: uniqueCommands.filter(c => c.category === "sports"),
+                religion: uniqueCommands.filter(c => c.category === "religion"),
                 general: uniqueCommands.filter(c => c.category === "general" && !c.ownerOnly && !c.adminOnly)
             };
 
@@ -85,7 +86,7 @@ module.exports = {
                     return await sock.sendMessage(jid, { text: subText }, { quoted: ctx.msg });
                 } else {
                     return await sock.sendMessage(jid, { 
-                        text: `⚠️ *Category "${target}" not found!*\n\nAvailable categories: \`admin, ai, download, group, sticker, anime, games, social, fun, economy, media, sports, system, owner, general\`` 
+                        text: `⚠️ *Category "${target}" not found!*\n\nAvailable categories: \`admin, ai, download, group, sticker, anime, games, social, fun, economy, media, sports, religion, system, owner, general\`` 
                     }, { quoted: ctx.msg });
                 }
             }
@@ -122,11 +123,12 @@ module.exports = {
             menuBody += `✨ *TEXTMAKER MENU*\n`;
             menuBody += `💰 *ECONOMY MENU*\n`;
             menuBody += `🎬 *MEDIA MENU*\n`;
+            menuBody += `⛪ *RELIGION MENU*\n`;
             menuBody += `🛰️ *SYSTEM MENU*\n`;
             menuBody += `🏀 *SPORTS MENU*\n`;
             menuBody += `📦 *OWNER MENU*\n`;
             menuBody += `🌍 *GENERAL MENU*\n\n`;
-            menuBody += `💎 _Type .m <category> or 1-14 for speed_`;
+            menuBody += `💎 _Type .m <category> or 1-15 for speed_`;
 
             if (banner) {
                 return await sock.sendMessage(jid, {

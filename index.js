@@ -23,6 +23,15 @@ async function connectionLogic() {
     if (isReconnecting) return;
     isReconnecting = true;
 
+    // Prune stale temporary session files on startup to prevent disk bottlenecks
+    const { cleanSessionFolder } = require("./lib/sessionCleaner");
+    cleanSessionFolder();
+
+    // Run automatic session pruning every 2 hours
+    setInterval(() => {
+        cleanSessionFolder();
+    }, 2 * 60 * 60 * 1000);
+
     const fs = require("fs");
     const path = require("path");
 
