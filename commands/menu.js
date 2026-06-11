@@ -144,7 +144,7 @@ module.exports = {
             }
 
             // 🎨 Level 1: Main Menu (Sleek Dashboard)
-            const bannerPath = path.join(__dirname, "../assets/Nexuspic.png");
+            const bannerPath = path.join(__dirname, "../assets/Nexuspic.jpg");
             const banner = fs.existsSync(bannerPath) ? fs.readFileSync(bannerPath) : null;
 
             let menuBody = `╭━━━━━━━◇\n`;
@@ -181,13 +181,14 @@ module.exports = {
             menuBody += `🏀 *SPORTS MENU*\n`;
             menuBody += `📦 *OWNER MENU*\n`;
             menuBody += `🌍 *GENERAL MENU*\n\n`;
+            menuBody += `💬 *Nexus Group:* https://chat.whatsapp.com/BltEhNI2DVfDOSVYXtBuwX\n\n`;
             menuBody += `💎 _Type .m <category> or 1-15 for speed_`;
 
             if (banner) {
                 return await sock.sendMessage(jid, {
                     image: banner,
                     caption: menuBody,
-                    footer: "Nexus-1MD • Premium Performance"
+                    footer: "Nexus-1MD • Support: chat.whatsapp.com/BltEhNI2DVfDOSVYXtBuwX"
                 }, { quoted: ctx.msg });
             } else {
                 return await sock.sendMessage(jid, { text: menuBody }, { quoted: ctx.msg });

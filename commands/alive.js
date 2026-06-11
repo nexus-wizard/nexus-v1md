@@ -32,7 +32,7 @@ module.exports = {
                      `_Type .menu to see what I can do!_`;
 
         await sock.sendMessage(jid, { 
-            image: fs.readFileSync(path.join(__dirname, "../assets/Nexuspic.png")),
+            image: fs.readFileSync(path.join(__dirname, "../assets/Nexuspic.jpg")),
             caption: text
         }, { quoted: msg });
     }

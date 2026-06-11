@@ -9,13 +9,14 @@ module.exports = {
     execute: async ({ sock, jid, msg }) => {
         const text = `📂 *NEXUS-1MD SOURCE CODE*\n\n` +
                      `You can get the bot script and deployment guide from the official repository:\n\n` +
-                     `🔗 *GitHub:* https://github.com/devwhitewizard/nexus-v1md\n\n` +
+                     `🔗 *GitHub:* https://github.com/devwhitewizard/nexus-v1md\n` +
+                     `💬 *Support Group:* https://chat.whatsapp.com/BltEhNI2DVfDOSVYXtBuwX\n\n` +
                      `👤 *Developer:* White Wizard\n` +
                      `🌐 *Portfolio:* https://jonathanmwanza.vercel.app/\n\n` +
                      `_Don't forget to give a ⭐ if you like the project!_`;
 
         await sock.sendMessage(jid, { 
-            image: fs.readFileSync(path.join(__dirname, "../assets/Nexuspic.png")),
+            image: fs.readFileSync(path.join(__dirname, "../assets/Nexuspic.jpg")),
             caption: text
         }, { quoted: msg });
     }

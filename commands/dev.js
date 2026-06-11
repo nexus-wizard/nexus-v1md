@@ -14,7 +14,7 @@ module.exports = {
                      `📂 *GitHub:* https://github.com/devwhitewizard\n\n` +
                      `_\"Magic is just science we don't understand yet, and code is the closest thing to magic I've found.\"_`;
 
-        const imgPath = path.join(__dirname, "../assets/Nexuspic.png");
+        const imgPath = path.join(__dirname, "../assets/Nexuspic.jpg");
         try {
             const image = fs.readFileSync(imgPath);
             await sock.sendMessage(jid, { image, caption: text }, { quoted: msg });
