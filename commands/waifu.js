@@ -1,5 +1,3 @@
-const axios = require("axios");
-
 module.exports = {
     name: "waifu",
     description: "Get a random anime waifu image.",
@@ -8,16 +6,12 @@ module.exports = {
         try {
             await sock.sendMessage(jid, { text: "💞 Finding a waifu for you..." });
 
-            const { data } = await axios.get("https://api.waifu.pics/sfw/waifu");
+            const imageUrl = "https://shizoapi.onrender.com/api/sfw/waifu?apikey=shizo";
             
-            if (data.url) {
-                await sock.sendMessage(jid, {
-                    image: { url: data.url },
-                    caption: `💞 *RANDOM WAIFU*\n\n_Your daily dose of anime charm!_\n_Nexus-1MD Anime Hub_`
-                }, { quoted: msg });
-            } else {
-                throw new Error("Invalid API response");
-            }
+            await sock.sendMessage(jid, {
+                image: { url: imageUrl },
+                caption: `💞 *RANDOM WAIFU*\n\n_Your daily dose of anime charm!_\n_Nexus-1MD Anime Hub_`
+            }, { quoted: msg });
 
         } catch (error) {
             console.error("Waifu command error:", error);

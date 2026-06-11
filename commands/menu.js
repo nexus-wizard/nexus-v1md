@@ -44,6 +44,7 @@ module.exports = {
                 system: uniqueCommands.filter(c => c.category === "system"),
                 sports: uniqueCommands.filter(c => c.category === "sports"),
                 religion: uniqueCommands.filter(c => c.category === "religion"),
+                dp: uniqueCommands.filter(c => c.category === "dp"),
                 general: uniqueCommands.filter(c => c.category === "general" && !c.ownerOnly && !c.adminOnly)
             };
 
@@ -137,7 +138,7 @@ module.exports = {
                     return await sock.sendMessage(jid, { text: subText }, { quoted: ctx.msg });
                 } else {
                     return await sock.sendMessage(jid, { 
-                        text: `⚠️ *Category "${target}" not found!*\n\nAvailable categories: \`admin, ai, download, group, sticker, anime, games, social, fun, economy, media, sports, religion, system, owner, general\`` 
+                        text: `⚠️ *Category "${target}" not found!*\n\nAvailable categories: \`admin, ai, download, group, sticker, anime, games, social, fun, economy, media, sports, religion, dp, system, owner, general\`` 
                     }, { quoted: ctx.msg });
                 }
             }
@@ -175,6 +176,7 @@ module.exports = {
             menuBody += `💰 *ECONOMY MENU*\n`;
             menuBody += `🎬 *MEDIA MENU*\n`;
             menuBody += `⛪ *RELIGION MENU*\n`;
+            menuBody += `🖼️ *DP MENU*\n`;
             menuBody += `🛰️ *SYSTEM MENU*\n`;
             menuBody += `🏀 *SPORTS MENU*\n`;
             menuBody += `📦 *OWNER MENU*\n`;
