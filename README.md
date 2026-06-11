@@ -139,7 +139,7 @@ Fork or push this repository to your own GitHub account.
 In the **Environment** settings tab, add the following variables:
 - `SESSION_ID`: The base64 gzip-compressed session credentials string (e.g. `NEXUS~...`) generated in your local console when you ran the bot and logged in.
 - `PORT`: Set to `10000` (Render's default web service port).
-- `SUDO`: Your primary WhatsApp manager number (e.g., `254797715445`).
+- `SUDO`: Your primary WhatsApp manager number (e.g., `254712345678`).
 
 ### 5. Keep Alive (Prevent Sleep)
 Render's Free Tier spins down web services if there is no inbound traffic for 15 minutes.
