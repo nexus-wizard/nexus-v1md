@@ -8,27 +8,45 @@
   </marquee>
 </p>
 
-> **Production-Ready | Binary-Free | Multi-User | Ultra-Stealth | Self-Healing**
+---
 
-Nexus-1MD is a high-performance, enterprise-grade WhatsApp automation framework designed for absolute stability, high security, and premium user experience. Powered by the **Nexus Intelligence Architecture** and built on top of Baileys, it is engineered to run seamlessly on servers, VPS, or local environments without any complex native dependencies.
+## ℹ️ About Nexus-1MD
+
+Nexus-1MD is a lightweight, customizable WhatsApp automation and userbot utility built on top of the `@whiskeysockets/baileys` library. It enables single or multi-user interaction with automated moderation, utility search commands, funny filters, media converters, and AI assistants. It is optimized to run efficiently on low-resource environments (like VPS or Render Free tier) without memory leaks or CPU crashes.
 
 ---
 
-## 🚀 Key Features & Architectural Design
+## 👥 Join Our Community & Show Your Support
 
-### 🛡️ Secure Identity System
-- **Super-Admin (SUDO)**: Complete system-level command capabilities protected with strict identity verification.
-- **Role-Based Access Control (RBAC)**: Distinct permissions for Owners, Admins, and regular Users.
-- **Stealth Engine**: Human-like emulated presence, custom browser identifiers, and randomized interaction delays to keep your WhatsApp account safe.
+### 💬 Official WhatsApp Group
+Stay updated, ask questions, and chat with other users by joining our official group:
+👉 **[Join Nexus-1MD Support Group](https://chat.whatsapp.com/BltEhNI2DVfDOSVYXtBuwX)**
 
-### 🩺 Enterprise-Grade Self-Healing Engine
-Nexus-1MD is built with a resilient "Zero-Headache" architecture to eliminate manual debugging and connection freezing:
-- **Active Connection Watchdog**: Periodically monitors the WebSocket state every 5 minutes, triggering automated restarts for zombie/frozen sockets.
-- **Uncaught Exception Shield**: Traps uncaught promise rejections and signal errors to prevent process crashes during delayed history synchronization.
-- **Auto-Reset on Logout**: Detects unlinking events (`loggedOut` status code), purges credentials, and restarts the console instance to instantly generate a clean QR code.
-- **E2E Decryption-Safe Directory Management**: Prunes only stale metadata while protecting E2E encryption pre-keys, preventing cryptography mismatch errors (`PreKeyError` or `Bad MAC`).
-- **Owner Self-Chat Support**: Captures `append` events alongside standard `notify` updates, allowing you to run commands inside your personal chat.
-- **Dynamic Session Fallback**: Auto-compresses, base64 encodes, and recovers session files (`creds.json`) directly from environment variables.
+### ⭐ Support the Project
+If you like Nexus-1MD, please take a moment to support the repository:
+- **Star the Repo**: Click the ⭐ button at the top right of this page to show your love!
+- **Fork the Repo**: Click the 🍴 Fork button to clone it into your own account and customize it.
+
+---
+
+## 📂 Command Categories
+
+Nexus-1MD features a comprehensive suite of commands grouped into clear categories. You can type `.menu <category>` in WhatsApp to see all available commands.
+
+*   **Group & Admin**: Tools to manage group chats.
+    *   *Examples*: `.kick @user`, `.mute`
+*   **Toxicity Guards**: Automated safety protection filters.
+    *   *Examples*: `.antilink` (auto-delete link shares), `.antispam` (stop flood messages)
+*   **AI & Media Utilities**: Intelligent queries and media conversion.
+    *   *Examples*: `.ai` (query GROQ/OpenAI models), `.sticker` (convert image/video to WhatsApp sticker)
+*   **Religion Suite**: Search and retrieve scriptures.
+    *   *Examples*: `.bible John 3:16`, `.quran 2:255`
+*   **Economy & Games**: Chat-based RPG elements and interactive mini-games.
+    *   *Examples*: `.work` (earn currency), `.trivia` (play a quiz game)
+*   **Display Picture (DP) Suite**: Fetch, process, and overlay fun designs on user profile pictures.
+    *   *Examples*: `.dp @user`, `.wanteddp @user` (create a wanted poster overlay)
+*   **System & General Tools**: Diagnostics and live query utilities.
+    *   *Examples*: `.ping`, `.weather Nairobi`
 
 ---
 
@@ -38,7 +56,7 @@ To configure Nexus-1MD, duplicate the `.env.example` file, rename it to `.env`, 
 
 | Variable | Description | Mandatory | Default |
 | :--- | :--- | :--- | :--- |
-| `SUDO` | Primary manager WhatsApp number with country code (e.g., `254797715445`) | **YES** | - |
+| `SUDO` | Primary manager WhatsApp number with country code (e.g., `254712345678`) | **YES** | - |
 | `OWNERS` | Comma-separated list of secondary owner numbers | No | - |
 | `SESSION_ID` | Base64 gzip-compressed session credentials fallback string | No | - |
 | `PAIRING_NUMBER` | Number with country code to request pairing codes instead of QR | No | - |
@@ -50,74 +68,36 @@ To configure Nexus-1MD, duplicate the `.env.example` file, rename it to `.env`, 
 
 ---
 
-## 📂 Command Category Suite
+## 🚀 Steps to Deploy
 
-Nexus-1MD has over **165+ production commands** categorized for fast indexing. Type `.menu <category>` to view subcommands directly.
+### Local / VPS Installation
 
-### 👥 Group & Admin Commands
-- **Moderation**: `.add`, `.kick`, `.promote`, `.demote`, `.mute`, `.unmute`, `.lock`, `.unlock`
-- **Toxicity Guards**: `.antilink`, `.antispam`, `.antibadword` (Automatically warning and kicking offenders)
-- **Activity Tracker**: Detailed metrics for inactive group members and tag capabilities (`.tagall`, `.tagadmins`).
+Ensure you have [Node.js](https://nodejs.org/) v18+ installed on your system.
 
-### 🤖 AI, Media & Converters
-- **Generative AI**: `.ai` (supports GROQ/OpenAI models) and `.imagine` (image generation).
-- **Stickers & Media**: Convert any image, video, or GIF into WhatsApp stickers (`.sticker`), change videos to audio (`.toaudio`, `.tomp3`), and convert view-once media (`.viewonce`).
-- **Summarization**: Long text/chat logging summary tools (`.summarize`).
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/devwhitewizard/nexus-v1md.git
+   cd Nexus-1MD
+   ```
 
-### ⛪ Religion Suite
-- **Bible (.bible)**: Instantly search bible scriptures or view verses (`.bible John 3:16`, `.bible search faith`).
-- **Quran (.quran)**: Retrieve Arabic verses with Sahih translation or search text (`.quran 2:255`, `.quran search patience`).
+2. **Install Dependencies**
+   ```bash
+   npm install
+   ```
 
-### 💰 Economy & Interactive Gaming
-- **Economy RPG**: Work legally (`.work`), commit crimes (`.crime`), check bank reserves (`.balance`), purchase boosters (`.shop`, `.buy`), or rob other players (`.rob`).
-- **Interactive Games**: Host chats with `.trivia`, `.quiz`, `.hangman`, `.tictactoe`, `.mathgame`, `.guess`, or `.wouldyourather`.
+3. **Configure Environment Variables**
+   Copy `.env.example` to `.env` and fill in the required variables (specifically `SUDO`):
+   ```bash
+   cp .env.example .env
+   ```
 
-### 🛰️ System & Utilities
-- **Diagnostic Panel**: `.ping`, `.uptime`, `.systemstatus`, `.botinfo`, `.repo`.
-- **API Utilities**: Live weather forecasts (`.weather`), Wikipedia scraper (`.wiki`), inline calculator (`.calc`), translation services (`.translate`), and shortened link generation (`.shortlink`).
+4. **Run the Bot**
+   Choose your run command:
+   - For development: `npm run dev`
+   - For normal production: `npm start`
+   - For PM2 (background runner): `npm run pm2`
 
 ---
-
-## 🚀 Quick Start (Deployment)
-
-### System Requirements
-- **Node.js**: `v18.x` or higher
-- **Package Manager**: `npm`
-- **Optional**: `PM2` (for persistent background process management)
-
-### 1. Installation
-Clone the repository and install all required modules:
-```bash
-git clone https://github.com/DevWhiteWizard/Nexus-1MD.git
-cd Nexus-1MD
-npm install
-```
-
-### 2. Environment Configuration
-Create your configuration file:
-```bash
-cp .env.example .env
-```
-Open `.env` and fill out your `SUDO` manager number. If you prefer pairing code links over QR codes, add your phone number to `PAIRING_NUMBER`.
-
-### 3. Execution
-Choose your preferred launch method:
-
-#### Development (Auto-Reload on Code Change)
-```bash
-npm run dev
-```
-
-#### Production (Standard Server)
-```bash
-npm start
-```
-
-#### PM2 Background Manager (Highly Recommended)
-```bash
-npm run pm2
-npm run logs
-```
 
 <details>
 <summary><b>🚀 Deploy on Render.com (Collapsible Setup Guide)</b></summary>
@@ -149,8 +129,26 @@ Render's Free Tier spins down web services if there is no inbound traffic for 15
 
 ---
 
-## 📜 License & Credits
-Developed by **DevWhiteWizard**.  
-Powered by the **Nexus Intelligence Architecture**.
+## ⚠️ Warning
 
-*Nexus-1MD is meant for educational, backup, and group administrative tasks. Please respect WhatsApp's Terms of Service.*
+This bot is NOT officially authorized, endorsed, or affiliated with WhatsApp Inc. or Meta Platforms, Inc. Self-bots, userbots, and automation tools violate WhatsApp's Terms of Service. Using this bot carries a risk of permanent account suspension or ban. Use this bot responsibly, avoid spamming, and run it at your own risk.
+
+## ⚖️ Legal & Disclaimer
+
+The developers of Nexus-1MD are not responsible for any damage, account bans, data loss, or legal actions resulting from the use of this software. By deploying or using this code, you agree to take full responsibility for your actions and abide by local regulations and terms of service.
+
+## 🔏 Copyright
+
+Copyright © 2026 DevWhiteWizard. All rights reserved.
+
+This repository and its source code are the intellectual property of the author and contributors. You are permitted to fork, modify, and run the software for personal, non-commercial use, provided the original credits remain intact.
+
+## 📄 License
+
+This project is licensed under the **ISC License**. For more information, please refer to the `package.json` file.
+
+## 🏅 Credits
+
+- **DevWhiteWizard** - Creator & Lead Developer.
+- **Baileys Library** - Excellent WhatsApp Web API library (`@whiskeysockets/baileys`).
+- All open-source package authors whose modules are used in this project.
