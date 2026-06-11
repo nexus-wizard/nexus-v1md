@@ -285,7 +285,7 @@ module.exports = {
                 const url = await getDpUrl(sock, target);
                 await sock.sendMessage(jid, {
                     image: { url },
-                    caption: `👁️ *DP VIEW*\n👤 *User:* @${target.split("@")[0]}\n🔗 *Link:* ${url}`,
+                    caption: `👁️ *DP VIEW*\n👤 *User:* @${target.split("@")[0]}`,
                     mentions: [target]
                 }, { quoted: msg });
             } catch (e) {
