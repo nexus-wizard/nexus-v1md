@@ -284,7 +284,12 @@ async function connectionLogic() {
             }
             global.healthCheckInterval = setInterval(async () => {
                 try {
-                    if (sock && sock.ws && sock.ws.readyState === 1) { // WebSocket is OPEN
+                    const wsOpen = sock && sock.ws && (
+                        sock.ws.isOpen === true || 
+                        sock.ws.readyState === 1 || 
+                        (sock.ws.socket && sock.ws.socket.readyState === 1)
+                    );
+                    if (wsOpen) { // WebSocket is OPEN
                         // Query the blocklist to ensure socket responds and is not a zombie
                         await Promise.race([
                             sock.fetchBlocklist().catch(() => null),

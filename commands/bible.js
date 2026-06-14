@@ -62,7 +62,7 @@ module.exports = {
                 for (let i = 0; i < maxResults; i++) {
                     const item = results[i];
                     const bookName = BIBLE_BOOKS[item.book] || `Book ${item.book}`;
-                    const cleanText = item.text.replace(/<[^>]*>/g, "").replace(/\[\d+\]/g, "").trim();
+                    const cleanText = item.text.replace(/<S>\d+<\/S>/gi, "").replace(/<[^>]*>/g, "").replace(/\[\d+\]/g, "").trim();
                     responseText += `📍 *${bookName} ${item.chapter}:${item.verse}*\n`;
                     responseText += `> ${cleanText}\n\n`;
                 }
@@ -102,7 +102,7 @@ module.exports = {
                     if (results && results.length > 0) {
                         const item = results[0];
                         const bookName = BIBLE_BOOKS[item.book] || `Book ${item.book}`;
-                        const cleanText = item.text.replace(/<[^>]*>/g, "").trim();
+                        const cleanText = item.text.replace(/<S>\d+<\/S>/gi, "").replace(/<[^>]*>/g, "").replace(/\[\d+\]/g, "").trim();
                         const responseText = `📖 *BIBLE VERSE: ${bookName} ${item.chapter}:${item.verse}*\n` +
                                              `━━━━━━━━━━━━━━━━━━━\n\n` +
                                              `> ${cleanText}\n\n` +
