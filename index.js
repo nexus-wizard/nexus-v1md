@@ -156,6 +156,7 @@ async function connectionLogic() {
             }
         }
     });
+    global.sock = sock; // Expose globally for Admin Panel
 
     // ⌚ WATCHDOG: If SESSION_ID is present but fails to connect within 30s, enable QR.
     let connectionTimeout = null;
@@ -192,6 +193,10 @@ async function connectionLogic() {
     sock.ev.on("connection.update", async (update) => {
         const { connection, lastDisconnect, qr } = update;
 
+        if (qr) {
+            global.latestQr = qr;
+        }
+
         if (qr && (!process.env.SESSION_ID || process.env.SESSION_ID_FAILED) && !usePairingCode) {
             console.clear();
             console.log("📲 Scan this QR to login:\n");
@@ -199,6 +204,7 @@ async function connectionLogic() {
         }
 
         if (connection === "open") {
+            global.latestQr = null;
             isReconnecting = false;
             console.log("✅ Bot connected and stable!");
             
@@ -405,4 +411,13 @@ connectionLogic();
 
 // 🌐 Health Check Server
 app.get("/", (req, res) => res.send("🤖 Nexus-1MD is Online and Healthy!"));
+
+// 🛠️ Admin Control Panel APIs
+try {
+    const { initAdminApi } = require("./lib/adminApi");
+    initAdminApi(app);
+} catch (e) {
+    console.error("⚠️ Failed to load Admin API router:", e.message);
+}
+
 app.listen(PORT, () => console.log(`🌍 Heartbeat server listening on port ${PORT}`));

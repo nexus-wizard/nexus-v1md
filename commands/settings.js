@@ -30,7 +30,7 @@ module.exports = {
             dashboard += `12. *Auto View Status* — ${settings.autoViewStatus ? on : off}\n`;
             dashboard += `13. *Auto Status Like* — ${settings.autoLikeStatus ? on : off}\n`;
             dashboard += `14. *Chatbot (AI)* — ${settings.chatbotAI ? on : off}\n`;
-            dashboard += `15. *Greet DM* — ${settings.greetDM ? on : off}\n`;
+            dashboard += `15. *Greet DM* — ${settings.greetDM ? on : off} ("${settings.greetDMMsg || 'Hello World'}")\n`;
 
             
             dashboard += `\n💡 *Tip:* Use \`.settings <number>\` to toggle.\nExample: \`.settings 10\` for Auto-Delete.`;
