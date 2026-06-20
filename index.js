@@ -1,4 +1,5 @@
-const envResult = require("dotenv").config();
+const path = require("path");
+const envResult = require("dotenv").config({ path: path.join(__dirname, ".env") });
 if (envResult.error) {
     console.log("⚠️  Could not find .env file. Using system environment variables instead.");
 } else {
