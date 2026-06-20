@@ -124,7 +124,12 @@ async function connectionLogic() {
         }
     }
 
-    const { state, saveCreds } = await useMultiFileAuthState(authFolder);
+    // Initialize Database (Centralized)
+    const { initDb } = require("./lib/db");
+    await initDb();
+
+    const { useDatabaseAuthState } = require("./lib/dbAuth");
+    const { state, saveCreds } = await useDatabaseAuthState(authFolder);
     const usePairingCode = !!process.env.PAIRING_NUMBER && !state.creds.registered;
     if (!state.creds.registered && !process.env.PAIRING_NUMBER && !process.env.SESSION_ID) {
         console.log("ℹ️  No PAIRING_NUMBER or SESSION_ID found. Defaulting to QR code login.");
@@ -214,10 +219,6 @@ async function connectionLogic() {
             global.latestQr = null;
             isReconnecting = false;
             console.log("✅ Bot connected and stable!");
-            
-            // Initialize Database (Centralized)
-            const { initDb } = require("./lib/db");
-            await initDb();
             
             const { loadSettings } = require("./lib/settings");
             await loadSettings(); 
