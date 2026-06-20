@@ -17,7 +17,7 @@ process.on("uncaughtException", (error) => {
 const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 3000;
-const { DisconnectReason, useMultiFileAuthState } = require("@whiskeysockets/baileys");
+const { DisconnectReason, useMultiFileAuthState, makeCacheableSignalKeyStore } = require("@whiskeysockets/baileys");
 const makeWASocket = require("@whiskeysockets/baileys").default;
 const qrcode = require("qrcode-terminal");
 const zlib = require("zlib");
@@ -138,7 +138,10 @@ async function connectionLogic() {
     const logger = P({ level: "error" });
 
     const sock = makeWASocket({
-        auth: state,
+        auth: {
+            creds: state.creds,
+            keys: makeCacheableSignalKeyStore(state.keys, logger),
+        },
         logger,
         markOnline: true, // Mark online to ensure real-time message delivery
         browser: ["Windows", "Chrome", "110.0.5481.178"], // More common modern browser
