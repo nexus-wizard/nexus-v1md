@@ -7,11 +7,6 @@
       "required": true,
       "type": "string"
     },
-    "PAIRING_NUMBER": {
-      "description": "WhatsApp phone number with country code (e.g. 254797715445) to link via pairing code.",
-      "required": false,
-      "type": "string"
-    },
     "SUDO": {
       "description": "The Super-Admin phone number with country code (e.g. 254797715445). Can run system commands.",
       "required": true,
@@ -33,11 +28,6 @@
       "required": false,
       "type": "string",
       "value": "public"
-    },
-    "DATABASE_URL": {
-      "description": "Database URL (e.g. postgres://user:pass@host/db). Optional, falls back to SQLite.",
-      "required": false,
-      "type": "string"
     }
   }
 }
