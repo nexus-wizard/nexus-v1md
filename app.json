@@ -3,7 +3,7 @@
   "description": "A powerful, multi-functional WhatsApp automation bot designed to elevate the general chat experience with smart tools and utilities.",
   "env": {
     "SESSION_ID": {
-      "description": "Your unique bot session ID (starts with NEXUS~ or BWM~).",
+      "description": "Your unique bot session ID (starts with NEXUS~).",
       "required": true,
       "type": "string"
     },
