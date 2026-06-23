@@ -124,12 +124,7 @@ async function connectionLogic() {
         }
     }
 
-    // Initialize Database (Centralized)
-    const { initDb } = require("./lib/db");
-    await initDb();
-
-    const { useDatabaseAuthState } = require("./lib/dbAuth");
-    const { state, saveCreds } = await useDatabaseAuthState(authFolder);
+    const { state, saveCreds } = await useMultiFileAuthState(authFolder);
     const usePairingCode = !!process.env.PAIRING_NUMBER && !state.creds.registered;
     if (!state.creds.registered && !process.env.PAIRING_NUMBER && !process.env.SESSION_ID) {
         console.log("ℹ️  No PAIRING_NUMBER or SESSION_ID found. Defaulting to QR code login.");
@@ -153,10 +148,7 @@ async function connectionLogic() {
     }
 
     const sock = makeWASocket({
-        auth: {
-            creds: state.creds,
-            keys: makeCacheableSignalKeyStore(state.keys, logger),
-        },
+        auth: state,
         logger,
         version,
         markOnline: true, // Mark online to ensure real-time message delivery
@@ -231,6 +223,10 @@ async function connectionLogic() {
             isReconnecting = false;
             console.log("✅ Bot connected and stable!");
             
+            // Initialize Database (Centralized)
+            const { initDb } = require("./lib/db");
+            await initDb();
+
             const { loadSettings } = require("./lib/settings");
             await loadSettings(); 
 
