@@ -49,14 +49,14 @@ async function connectionLogic() {
         console.log("📦 SESSION_ID detected. Verifying session file...");
         const credsPath = path.join(__dirname, authFolder, "creds.json");
         const sessionExists = fs.existsSync(credsPath) && fs.statSync(credsPath).size > 10;
-        
+
         if (!sessionExists) {
             console.log("📦 SESSION_ID found in .env and local credentials missing. Attempting to restore session...");
             try {
                 const rawId = process.env.SESSION_ID.trim();
                 const sessionId = rawId.includes("~") ? rawId.split("~")[1] : (rawId.startsWith("BWM") || rawId.startsWith("XMD") ? rawId.slice(4) : rawId);
                 const buffer = Buffer.from(sessionId, "base64");
-                
+
                 let credsJson = "";
                 const decodeBuffer = (buf) => {
                     try { return zlib.gunzipSync(buf).toString("utf-8"); } catch {
@@ -78,7 +78,7 @@ async function connectionLogic() {
                     const text = buf.toString("utf-8");
                     const firstBrace = text.indexOf("{");
                     if (firstBrace === -1) return null;
-                    
+
                     // Scan for valid JSON blocks
                     for (let i = 0; i < text.length; i++) {
                         if (text[i] === "{") {
@@ -88,7 +88,7 @@ async function connectionLogic() {
                                     JSON.parse(candidate);
                                     return candidate;
                                 }
-                            } catch (e) {}
+                            } catch (e) { }
                         }
                     }
                     return null;
@@ -132,7 +132,7 @@ async function connectionLogic() {
 
     const NodeCache = require("node-cache");
     const msgRetryCounterCache = new NodeCache();
-    
+
     // Standard Pino logger configured for error logs only to keep terminal clean
     const P = require("pino");
     const logger = P({ level: "error" });
@@ -222,19 +222,19 @@ async function connectionLogic() {
             global.latestQr = null;
             isReconnecting = false;
             console.log("✅ Bot connected and stable!");
-            
+
             // Initialize Database (Centralized)
             const { initDb } = require("./lib/db");
             await initDb();
 
             const { loadSettings } = require("./lib/settings");
-            await loadSettings(); 
+            await loadSettings();
 
             const myJid = (sock.user && sock.user.id) || (sock.authState.creds.me && sock.authState.creds.me.id) || (sock.authState.creds.me && sock.authState.creds.me.lid) || "";
             const cleanJid = myJid.split(":")[0];
             const domain = myJid.includes("@lid") ? "@lid" : "@s.whatsapp.net";
             global.myJid = cleanJid ? cleanJid + domain : "";
-            
+
             console.log(`📊 Unified settings loaded. SELF-ID: ${global.myJid}`);
 
             // 🛡️ Super-Admin Detection
@@ -242,7 +242,7 @@ async function connectionLogic() {
             const { ownerNumbers } = require("./config");
             const { toJid } = require("./lib/utils");
             const primarySudo = process.env.SUDO ? toJid(process.env.SUDO) : toJid(ownerNumbers[0]);
-            
+
             console.log(`🛡️  Super-Admin (SUDO): ${primarySudo || "NOT CONFIGURED"}`);
 
             if (isFirstConnect) {
@@ -250,7 +250,7 @@ async function connectionLogic() {
                 const path = require("path");
                 const fs = require("fs");
                 const { authFolder, version } = require("./config");
-                
+
                 // Generate Session ID
                 const credsPath = path.join(__dirname, authFolder, "creds.json");
                 let sessionId = "NO_CREDS_FOUND";
@@ -258,27 +258,27 @@ async function connectionLogic() {
                     const creds = fs.readFileSync(credsPath, "utf-8");
                     sessionId = "NEXUS~" + Buffer.from(creds).toString("base64");
                 }
-                
+
                 console.log("\n========================================");
                 console.log("💾 YOUR PERSISTENT SESSION ID (Keep Secret!):");
                 console.log(`${sessionId}`);
                 console.log("========================================\n");
-                
+
                 // 💎 PREMIUM USER MESSAGE
-                const userWelcome = { 
+                const userWelcome = {
                     text: `✨ *Nexus-1MD v${version} Connected!* ✨\n\n` +
-                          `🤖 *Status:* System fully operational.\n` +
-                          `✅ *Secure:* Your connection is stable and encrypted.\n\n` +
-                          `🌟 *Welcome!* Your bot is ready to serve. Type *.menu* to see what I can do!\n\n` +
-                          `> Powered by Nexus Intelligence`
+                        `🤖 *Status:* System fully operational.\n` +
+                        `✅ *Secure:* Your connection is stable and encrypted.\n\n` +
+                        `🌟 *Welcome!* Your bot is ready to serve. Type *.menu* to see what I can do!\n\n` +
+                        `> Powered by Nexus Intelligence`
                 };
 
                 // 🛠️ TECHNICAL ADMIN MESSAGE
                 const adminAlert = {
                     text: `🛠️ *Nexus Admin: Connection Established*\n\n` +
-                          `📦 *Session:* Restored/Initialized\n` +
-                          `💾 *Storage:* Binary-Free Fallback Active\n\n` +
-                          `> Session ID has been printed to your private console.`
+                        `📦 *Session:* Restored/Initialized\n` +
+                        `💾 *Storage:* Binary-Free Fallback Active\n\n` +
+                        `> Session ID has been printed to your private console.`
                 };
 
                 // 📡 Reliable Message Delivery
@@ -306,8 +306,8 @@ async function connectionLogic() {
             global.healthCheckInterval = setInterval(async () => {
                 try {
                     const wsOpen = sock && sock.ws && (
-                        sock.ws.isOpen === true || 
-                        sock.ws.readyState === 1 || 
+                        sock.ws.isOpen === true ||
+                        sock.ws.readyState === 1 ||
                         (sock.ws.socket && sock.ws.socket.readyState === 1)
                     );
                     if (wsOpen) { // WebSocket is OPEN
@@ -322,7 +322,7 @@ async function connectionLogic() {
                 } catch (err) {
                     console.error("⚠️ [Watchdog] Active connection health check failed:", err.message);
                     clearInterval(global.healthCheckInterval);
-                    try { sock.end(); } catch (e) {}
+                    try { sock.end(); } catch (e) { }
                 }
             }, 3 * 60 * 1000); // check every 3 minutes
 
@@ -332,7 +332,7 @@ async function connectionLogic() {
                 const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
                 try {
                     await MessageLog.destroy({ where: { timestamp: { [Op.lt]: sevenDaysAgo } } });
-                } catch (e) {}
+                } catch (e) { }
             }, 24 * 60 * 60 * 1000);
         }
 
@@ -342,9 +342,9 @@ async function connectionLogic() {
                 clearInterval(global.healthCheckInterval);
             }
             const statusCode = lastDisconnect?.error?.output?.statusCode || lastDisconnect?.error?.output?.payload?.statusCode;
-            
+
             console.log(`🔌 Connection closed. Status Code: ${statusCode}`);
-            
+
             if (statusCode === DisconnectReason.loggedOut) {
                 console.log("⚠️ [Self-Healing] Bot was logged out or unlinked. Wiping credentials and restarting connection to show fresh login...");
                 const fs = require("fs");
@@ -356,17 +356,17 @@ async function connectionLogic() {
                     const sessionDir = path.join(__dirname, authFolder);
                     if (fs.existsSync(sessionDir)) {
                         fs.readdirSync(sessionDir).forEach(file => {
-                            try { fs.unlinkSync(path.join(sessionDir, file)); } catch(e){}
+                            try { fs.unlinkSync(path.join(sessionDir, file)); } catch (e) { }
                         });
                     }
-                } catch(e) {
+                } catch (e) {
                     console.error("Failed to clean session directory:", e.message);
                 }
-                
+
                 setTimeout(() => connectionLogic(), 5000);
             } else {
                 const delay = 10000;
-                console.log(`🔌 Disconnected. Reconnecting in ${delay/1000}s...`);
+                console.log(`🔌 Disconnected. Reconnecting in ${delay / 1000}s...`);
                 setTimeout(() => connectionLogic(), delay);
             }
         }
@@ -383,7 +383,7 @@ async function connectionLogic() {
 
         // Run automation in background to prevent blocking command replies (e.g. status-view delays)
         handleAutomation(sock, m).catch(err => console.error("⚠️ Automation Error:", err));
-        await handleMessages(sock, upsert); 
+        await handleMessages(sock, upsert);
     });
 
     const { handleMessageDelete } = require("./lib/automation");
@@ -416,7 +416,7 @@ async function connectionLogic() {
                     const metadata = await sock.groupMetadata(id);
                     let msg = settings.welcomeMsg.replace("@user", `@${user.split("@")[0]}`).replace("@group", metadata.subject);
                     await sock.sendMessage(id, { text: msg, mentions: [user] });
-                } catch (e) {}
+                } catch (e) { }
             }
         }
     });
