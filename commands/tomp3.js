@@ -31,7 +31,7 @@ module.exports = {
             fs.writeFileSync(inputPath, buffer);
 
             // High-quality 192kbps MP3 CBR
-            exec(`ffmpeg -i ${inputPath} -vn -ar 44100 -ac 2 -b:a 192k ${outputPath}`, async (err) => {
+            exec(`ffmpeg -i ${inputPath} -vn -ar 44100 -ac 2 -b:a 192k ${outputPath}`, { timeout: 15000 }, async (err) => {
                 if (err) {
                     console.error("FFmpeg mp3 error:", err);
                     await sock.sendMessage(jid, { text: "❌ MP3 transcoding failed." });

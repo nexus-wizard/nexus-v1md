@@ -30,7 +30,7 @@ module.exports = {
             fs.writeFileSync(inputPath, buffer);
 
             // Using ffmpeg to convert webp to png
-            exec(`ffmpeg -i ${inputPath} ${outputPath}`, async (err) => {
+            exec(`ffmpeg -i ${inputPath} ${outputPath}`, { timeout: 15000 }, async (err) => {
                 if (err) {
                     console.error("FFmpeg error:", err);
                     await sock.sendMessage(jid, { text: "❌ Conversion failed." });

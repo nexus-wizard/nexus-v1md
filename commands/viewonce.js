@@ -30,14 +30,20 @@ module.exports = {
             if (imageMsg) {
                 console.log("📸 Found Image Message");
                 const stream = await downloadContentFromMessage(imageMsg, 'image');
-                let buffer = Buffer.from([]);
-                for await (const chunk of stream) buffer = Buffer.concat([buffer, chunk]);
+                const chunks = [];
+                for await (const chunk of stream) {
+                    chunks.push(chunk);
+                }
+                const buffer = Buffer.concat(chunks);
                 await sock.sendMessage(jid, { image: buffer, caption: imageMsg.caption || '' }, { quoted: message });
             } else if (videoMsg) {
                 console.log("🎥 Found Video Message");
                 const stream = await downloadContentFromMessage(videoMsg, 'video');
-                let buffer = Buffer.from([]);
-                for await (const chunk of stream) buffer = Buffer.concat([buffer, chunk]);
+                const chunks = [];
+                for await (const chunk of stream) {
+                    chunks.push(chunk);
+                }
+                const buffer = Buffer.concat(chunks);
                 await sock.sendMessage(jid, { video: buffer, caption: videoMsg.caption || '' }, { quoted: message });
             } else {
                 await sock.sendMessage(jid, { text: '❌ Please reply to a view-once image or video.' }, { quoted: message });

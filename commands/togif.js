@@ -31,7 +31,7 @@ module.exports = {
             fs.writeFileSync(inputPath, buffer);
 
             // Professional FFmpeg GIF conversion settings
-            exec(`ffmpeg -i ${inputPath} -vf "fps=10,scale=320:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" -loop 0 ${outputPath}`, async (err) => {
+            exec(`ffmpeg -i ${inputPath} -vf "fps=10,scale=320:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" -loop 0 ${outputPath}`, { timeout: 15000 }, async (err) => {
                 if (err) {
                     console.error("FFmpeg GIF error:", err);
                     await sock.sendMessage(jid, { text: "❌ GIF creation failed." });

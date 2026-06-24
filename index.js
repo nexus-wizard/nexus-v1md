@@ -16,6 +16,7 @@ process.on("uncaughtException", (error) => {
 
 const express = require("express");
 const app = express();
+global.app = app;
 const PORT = process.env.PORT || 3000;
 const { DisconnectReason, useMultiFileAuthState, makeCacheableSignalKeyStore, Browsers, fetchLatestBaileysVersion } = require("@whiskeysockets/baileys");
 const makeWASocket = require("@whiskeysockets/baileys").default;
@@ -27,18 +28,29 @@ const { handleMessages } = require("./lib/commandHandler");
 
 let isFirstConnect = true;
 let isReconnecting = false;
+let consecutiveFailures = 0;
+let hasWipedSessionOnStartup = false;
 
 async function connectionLogic() {
     if (isReconnecting) return;
     isReconnecting = true;
 
     // Prune stale temporary session files on startup to prevent disk bottlenecks
-    const { cleanSessionFolder } = require("./lib/sessionCleaner");
+    const { cleanSessionFolder, cleanTempMedia } = require("./lib/sessionCleaner");
     cleanSessionFolder(24, true);
+    try {
+        const pruned = cleanTempMedia(6);
+        if (pruned > 0) console.log(`🧹 Startup Pruning: Cleaned ${pruned} stale temp media file(s).`);
+    } catch (e) {
+        console.error("⚠️ Failed to clean temp media on startup:", e.message);
+    }
 
-    // Run automatic session pruning every 2 hours
+    // Run automatic session pruning and temp media cleaning every 2 hours
     setInterval(() => {
         cleanSessionFolder();
+        try {
+            cleanTempMedia(6);
+        } catch (e) {}
     }, 2 * 60 * 60 * 1000);
 
     const fs = require("fs");
@@ -124,7 +136,32 @@ async function connectionLogic() {
         }
     }
 
-    const { state, saveCreds } = await useMultiFileAuthState(authFolder);
+    let { state, saveCreds } = await useMultiFileAuthState(authFolder);
+
+    // Clean session directory on fresh login to prevent old/conflicting pre-key/session files from causing loops
+    if (!hasWipedSessionOnStartup && !state.creds.registered && !process.env.SESSION_ID) {
+        hasWipedSessionOnStartup = true;
+        console.log("🧹 Fresh login setup detected. Wiping any old/corrupted keys from session directory...");
+        try {
+            const fs = require("fs");
+            const path = require("path");
+            const sessionDir = path.join(__dirname, authFolder);
+            if (fs.existsSync(sessionDir)) {
+                fs.readdirSync(sessionDir).forEach(file => {
+                    try {
+                        fs.unlinkSync(path.join(sessionDir, file));
+                    } catch (e) {}
+                });
+            }
+            // Re-load auth state after cleaning
+            const freshState = await useMultiFileAuthState(authFolder);
+            state = freshState.state;
+            saveCreds = freshState.saveCreds;
+        } catch (e) {
+            console.error("⚠️ Failed to clean session folder on startup:", e.message);
+        }
+    }
+
     const usePairingCode = !!process.env.PAIRING_NUMBER && !state.creds.registered;
     if (!state.creds.registered && !process.env.PAIRING_NUMBER && !process.env.SESSION_ID) {
         console.log("ℹ️  No PAIRING_NUMBER or SESSION_ID found. Defaulting to QR code login.");
@@ -148,11 +185,14 @@ async function connectionLogic() {
     }
 
     const sock = makeWASocket({
-        auth: state,
+        auth: {
+            creds: state.creds,
+            keys: makeCacheableSignalKeyStore(state.keys, logger),
+        },
         logger,
         version,
         markOnline: true, // Mark online to ensure real-time message delivery
-        browser: Browsers.macOS("Desktop"),
+        browser: Browsers.windows("Desktop"),
         msgRetryCounterCache,
         defaultQueryTimeoutMs: 60000, // Prevent queries from hanging indefinitely
         syncFullHistory: false,
@@ -214,13 +254,18 @@ async function connectionLogic() {
 
         if (qr && (!process.env.SESSION_ID || process.env.SESSION_ID_FAILED) && !usePairingCode) {
             console.clear();
+            console.log("💡 QR Code too big, distorted, or hard to scan?");
+            console.log(`👉 Open http://localhost:${PORT}/qr in your web browser for a clean, high-res QR code!\n`);
             console.log("📲 Scan this QR to login:\n");
             qrcode.generate(qr, { small: true });
+            console.log("\n💡 QR Code too big, distorted, or hard to scan?");
+            console.log(`👉 Open http://localhost:${PORT}/qr in your web browser for a clean, high-res QR code!\n`);
         }
 
         if (connection === "open") {
             global.latestQr = null;
             isReconnecting = false;
+            consecutiveFailures = 0; // Reset failure counter on successful connection
             console.log("✅ Bot connected and stable!");
 
             // Initialize Database (Centralized)
@@ -275,9 +320,9 @@ async function connectionLogic() {
 
                 // 🛠️ TECHNICAL ADMIN MESSAGE
                 const adminAlert = {
-                    text: `🛠️ *Nexus Admin: Connection Established*\n\n` +
+                    text: `🛠️ *Nexus-1MD v${version}: Connection Established*\n\n` +
                         `📦 *Session:* Restored/Initialized\n` +
-                        `💾 *Storage:* Binary-Free Fallback Active\n\n` +
+                        `💾 *Storage:* Nexus-MD-100%\n\n` +
                         `> Session ID has been printed to your private console.`
                 };
 
@@ -323,6 +368,7 @@ async function connectionLogic() {
                     console.error("⚠️ [Watchdog] Active connection health check failed:", err.message);
                     clearInterval(global.healthCheckInterval);
                     try { sock.end(); } catch (e) { }
+                    process.exit(1);
                 }
             }, 3 * 60 * 1000); // check every 3 minutes
 
@@ -345,8 +391,30 @@ async function connectionLogic() {
 
             console.log(`🔌 Connection closed. Status Code: ${statusCode}`);
 
-            if (statusCode === DisconnectReason.loggedOut) {
-                console.log("⚠️ [Self-Healing] Bot was logged out or unlinked. Wiping credentials and restarting connection to show fresh login...");
+            // Detect if the failure is non-network related to avoid false-positive session wipes during internet outages
+            const isNetworkError = 
+                lastDisconnect?.error?.code === "ENOTFOUND" || 
+                lastDisconnect?.error?.code === "EAI_AGAIN" || 
+                lastDisconnect?.error?.code === "ECONNREFUSED" || 
+                lastDisconnect?.error?.code === "ETIMEDOUT" || 
+                lastDisconnect?.error?.code === "ECONNRESET" ||
+                statusCode === DisconnectReason.connectionLost || 
+                statusCode === DisconnectReason.connectionClosed || 
+                statusCode === DisconnectReason.timedOut;
+
+            if (!isNetworkError) {
+                consecutiveFailures++;
+                console.log(`⚠️ Non-network connection failure count: ${consecutiveFailures}/5`);
+            }
+
+            if (statusCode === DisconnectReason.loggedOut || consecutiveFailures >= 5) {
+                if (consecutiveFailures >= 5) {
+                    console.log("⚠️ [Self-Healing] Detected 5 consecutive session-related connection failures. Session may be corrupt. Wiping credentials and restarting...");
+                } else {
+                    console.log("⚠️ [Self-Healing] Bot was logged out or unlinked. Wiping credentials and restarting connection to show fresh login...");
+                }
+                consecutiveFailures = 0; // Reset counter
+                hasWipedSessionOnStartup = false; // Reset wipe flag to allow startup cleanup on next run
                 const fs = require("fs");
                 const path = require("path");
                 const { authFolder } = require("./config");
@@ -435,4 +503,7 @@ try {
     console.error("⚠️ Failed to load Admin API router:", e.message);
 }
 
-app.listen(PORT, () => console.log(`🌍 Heartbeat server listening on port ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`🌍 Heartbeat server listening on port ${PORT}`);
+    console.log(`👉 If the terminal QR code is too big or hard to scan, open http://localhost:${PORT}/qr in your web browser to scan!\n`);
+});

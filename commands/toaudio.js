@@ -31,7 +31,7 @@ module.exports = {
             
             fs.writeFileSync(inputPath, buffer);
 
-            exec(`ffmpeg -i ${inputPath} -vn -acodec libmp3lame -q:a 2 ${outputPath}`, async (err) => {
+            exec(`ffmpeg -i ${inputPath} -vn -acodec libmp3lame -q:a 2 ${outputPath}`, { timeout: 15000 }, async (err) => {
                 if (err) {
                     console.error("FFmpeg audio error:", err);
                     await sock.sendMessage(jid, { text: "❌ Audio extraction failed." });
