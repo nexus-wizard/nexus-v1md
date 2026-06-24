@@ -25,6 +25,8 @@ const zlib = require("zlib");
 
 const { authFolder } = require("./config");
 const { handleMessages } = require("./lib/commandHandler");
+const { getMessage } = require("./lib/messageModel");
+const { getSettings } = require("./lib/settings");
 
 let isFirstConnect = true;
 let isReconnecting = false;
@@ -203,7 +205,6 @@ async function connectionLogic() {
         keepAliveIntervalMs: 30000,
         getMessage: async (key) => {
             try {
-                const { getMessage } = require("./lib/messageModel");
                 const msg = await getMessage(key.id);
                 return msg ? msg.content : undefined;
             } catch (e) {
@@ -442,10 +443,8 @@ async function connectionLogic() {
 
     const { handleAutomation } = require("./lib/automation");
     sock.ev.on("messages.upsert", async (upsert) => {
-        console.log(`📩 Raw event received: ${upsert.type}`);
         const m = upsert.messages[0];
         if (!m.message) {
-            console.log("📩 Event has no message content, skipping.");
             return;
         }
 
@@ -461,7 +460,6 @@ async function connectionLogic() {
 
     // 📞 Anti-Call Protection (Controlled)
     sock.ev.on("call", async (calls) => {
-        const { getSettings } = require("./lib/settings");
         const settings = getSettings();
         if (settings.antiCall) {
             for (const call of calls) {
@@ -476,7 +474,6 @@ async function connectionLogic() {
     sock.ev.on("group-participants.update", async (update) => {
 
         const { id, participants, action } = update;
-        const { getSettings } = require("./lib/settings");
         const settings = getSettings();
         if (action === "add" && settings.welcome) {
             for (let user of participants) {
